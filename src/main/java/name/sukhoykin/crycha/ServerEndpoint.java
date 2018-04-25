@@ -1,4 +1,4 @@
-package name.sukhoykin.webchat;
+package name.sukhoykin.crycha;
 
 import java.io.IOException;
 import java.security.spec.ECGenParameterSpec;
@@ -18,7 +18,7 @@ import org.bouncycastle.jce.ECNamedCurveTable;
 import com.google.gson.Gson;
 
 @ServerEndpoint("/crycha")
-public class CryChaEndpoint {
+public class ServerEndpoint {
 	
 	private Gson gson = new Gson();
 	

@@ -1,4 +1,4 @@
-package name.sukhoykin.webchat;
+package name.sukhoykin.crycha;
 
 public class AuthorizeMessage {
 
