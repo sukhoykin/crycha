@@ -1,4 +1,16 @@
-# CryCha
+# CryCha (DRAFT)
+
+## Development
+### Requirements
+* JDK
+* NPM
+
+```
+git clone
+npm install
+bower install
+grunt
+```
 
 ## Communication protocol
 
