@@ -15,8 +15,20 @@ buildscript {
 
 repositories {
     jcenter()
+    mavenCentral()
 }
 
 dependencies {
+    providedCompile 'javax.websocket:javax.websocket-api:+'
+    compile 'com.google.code.gson:gson:+'
+    compile 'org.bouncycastle:bcprov-jdk15on:+'
+}
 
+gretty {
+
+    httpEnabled = false
+    httpsEnabled = true
+    httpsPort = 443
+    
+    servletContainer = 'tomcat8'
 }

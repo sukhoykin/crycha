@@ -1,0 +1,21 @@
+{
+  "name": "crycha",
+  "description": "Secure chat with end-to-end encryption",
+  "main": "index.js",
+  "authors": [
+    "Vadim Sukhoykin <vadim.sukhoykin@gmail.com>"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/sukhoykin/crycha",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "^3.3.1",
+    "elliptic": "git@github.com:indutny/elliptic.git#^6.4.0"
+  }
+}
