@@ -18,7 +18,7 @@ import org.bouncycastle.jce.ECNamedCurveTable;
 import com.google.gson.Gson;
 
 @ServerEndpoint("/crycha")
-public class ServerEndpoint {
+public class Endpoint {
 	
 	private Gson gson = new Gson();
 	
@@ -46,28 +46,28 @@ public class ServerEndpoint {
 		
 		
 		
-		try {
-			
-			ECGenParameterSpec ecGenSpec = 
-			
-			
-			
-			X9ECParameters x9ecp = CustomNamedCurves.getByName("curve25519");
-			
-			KeyPairGenerator kpg = KeyPairGenerator.getInstance("EC");
-			kpg.initialize(new ECGenParameterSpec("Curve25519"));
-			
-		} catch (NoSuchAlgorithmException e1) {
-			e1.printStackTrace();
-		} catch (InvalidAlgorithmParameterException e) {
-			e.printStackTrace();
-		}
-		
-		try {
-			session.getBasicRemote().sendText(gson.toJson(authorize));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+//		try {
+//			
+//			ECGenParameterSpec ecGenSpec = 
+//			
+//			
+//			
+//			X9ECParameters x9ecp = CustomNamedCurves.getByName("curve25519");
+//			
+//			KeyPairGenerator kpg = KeyPairGenerator.getInstance("EC");
+//			kpg.initialize(new ECGenParameterSpec("Curve25519"));
+//			
+//		} catch (NoSuchAlgorithmException e1) {
+//			e1.printStackTrace();
+//		} catch (InvalidAlgorithmParameterException e) {
+//			e.printStackTrace();
+//		}
+//		
+//		try {
+//			session.getBasicRemote().sendText(gson.toJson(authorize));
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
 	}
 	
 	@OnClose
