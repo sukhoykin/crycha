@@ -38,7 +38,7 @@ Object.defineProperty(elliptic.curves, name, {
 });
 
 /**
- * Derive of ECDH shared secret. 
+ * Derive of ECDH shared secret.
  */
 
 var ec = new elliptic.ec('curve25519-weier');
@@ -54,7 +54,7 @@ socket.onopen = function() {
   console.log(key.getPublic());
   console.log('SEND: ' + key.getPublic().encodeCompressed('hex'));
 
-  socket.send(key.getPublic('hex'));
+  socket.send(key.getPublic().encodeCompressed('hex'));
 }
 
 socket.onclose = function(event) {
@@ -66,10 +66,20 @@ socket.onmessage = function(event) {
   console.log('onmessage');
   console.log(event.data);
 
-  console.log('sharedSecret');
-  var shared = key.derive(ec.keyFromPublic(event.data, "hex").getPublic()).toString(16);
+  console.log('derived');
+  var serverPublicKey = ec.keyFromPublic(event.data, "hex").getPublic();
+  var derived = key.derive(serverPublicKey);
+  console.log(derived.toString(16));
+  console.log(' server: ' + serverPublicKey.encode('hex'));
+  console.log(' client: ' + key.getPublic().encode('hex'));
 
-  console.log(shared);
+  console.log('shared');
+  var sha256 = hash.sha256();
+  sha256.update(derived.toArray());
+  sha256.update(serverPublicKey.encode());
+  sha256.update(key.getPublic().encode());
+  // var shared = sha256.digest();
+  console.log(sha256.digest('hex'));
 };
 
 socket.onerror = function(error) {

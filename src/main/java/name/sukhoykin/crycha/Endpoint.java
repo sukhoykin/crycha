@@ -8,6 +8,7 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.SecureRandom;
@@ -65,6 +66,8 @@ public class Endpoint {
 
         try {
 
+            // Send compressed
+
             X9ECParameters ecParams = CustomNamedCurves.getByName("curve25519");
             ECParameterSpec ecSpec = new ECParameterSpec(ecParams.getCurve(), ecParams.getG(), ecParams.getN(),
                     ecParams.getH(), ecParams.getSeed());
@@ -80,23 +83,41 @@ public class Endpoint {
 
             session.getBasicRemote().sendText(printHexBinary(ecPub.getQ().getEncoded(true)));
 
-            ///
+            // Derive
 
             ECPoint ecPoint = ecSpec.getCurve().decodePoint(parseHexBinary(message));
             ECPublicKeySpec ecPubKeySpec = new ECPublicKeySpec(ecPoint, ecSpec);
 
             KeyFactory kf = KeyFactory.getInstance("ECDH", BouncyCastleProvider.PROVIDER_NAME);
-            ecPub = (ECPublicKey) kf.generatePublic(ecPubKeySpec);
+            ECPublicKey ecPubClient = (ECPublicKey) kf.generatePublic(ecPubKeySpec);
 
             System.out.println("RECEIVE: " + message);
-            System.out.println(ecPub);
+            System.out.println(ecPubClient);
 
             KeyAgreement ka = KeyAgreement.getInstance("ECDH", BouncyCastleProvider.PROVIDER_NAME);
             ka.init(keyPair.getPrivate());
-            ka.doPhase(ecPub, true);
+            ka.doPhase(ecPubClient, true);
+
+            byte[] derivedKey = ka.generateSecret();
+
+            System.out.println("derivedKey");
+            System.out.println(printHexBinary(derivedKey));
+
+            System.out.println("  server: " + printHexBinary(ecPub.getQ().getEncoded(false)));
+            System.out.println("  client: " + printHexBinary(ecPubClient.getQ().getEncoded(false)));
+
+            // Shared secret
+
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+
+            md.update(derivedKey);
+            md.update(ecPub.getQ().getEncoded(false));
+            md.update(ecPubClient.getQ().getEncoded(false));
+
+            byte[] sharedSecret = md.digest();
 
             System.out.println("sharedSecret");
-            System.out.println(printHexBinary(ka.generateSecret()));
+            System.out.println(printHexBinary(sharedSecret));
 
         } catch (NoSuchAlgorithmException e1) {
             e1.printStackTrace();
