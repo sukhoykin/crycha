@@ -2,7 +2,7 @@
 
 var hash = require('hash.js');
 var elliptic = require('elliptic');
-var aes = require('aesjs');
+var aesjs = require('aesjs');
 
 /**
  * Definition of Curve25519 in Weierstrass form for Java server compatibility.
@@ -79,10 +79,31 @@ socket.onmessage = function(event) {
   sha256.update(derived.toArray());
   sha256.update(serverPublicKey.encode());
   sha256.update(key.getPublic().encode());
-  // var shared = sha256.digest();
-  console.log(sha256.digest('hex'));
-  
-  
+  var shared = sha256.digest();
+  console.log(aesjs.utils.hex.fromBytes(shared));
+
+  var iv = aesjs.utils.utf8.toBytes('0000000000000000'); // TODO: recieve
+                                                          // secure random from
+                                                          // server
+  var aesCbc = new aesjs.ModeOfOperation.cbc(shared, iv);
+
+  var textBytes = aesjs.padding.pkcs7.pad(aesjs.utils.utf8.toBytes('Test'));
+
+  var encryptedBytes = aesCbc.encrypt(textBytes);
+  console.log('AES Test -> ' + aesjs.utils.hex.fromBytes(encryptedBytes));
+
+  var encryptedBytes2 = aesCbc.encrypt(textBytes);
+  console.log('AES Test -> ' + aesjs.utils.hex.fromBytes(encryptedBytes2));
+
+  aesCbc = new aesjs.ModeOfOperation.cbc(shared, iv);
+
+  var decryptedBytes = aesCbc.decrypt(encryptedBytes);
+  console.log('AES ' + aesjs.utils.hex.fromBytes(encryptedBytes) + ' -> '
+      + aesjs.utils.utf8.fromBytes(aesjs.padding.pkcs7.strip(decryptedBytes)));
+
+  var decryptedBytes2 = aesCbc.decrypt(encryptedBytes2);
+  console.log('AES ' + aesjs.utils.hex.fromBytes(encryptedBytes2) + ' -> '
+      + aesjs.utils.utf8.fromBytes(aesjs.padding.pkcs7.strip(decryptedBytes2)));
 };
 
 socket.onerror = function(error) {

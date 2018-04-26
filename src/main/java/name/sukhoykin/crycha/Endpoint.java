@@ -13,8 +13,12 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
+import java.util.Arrays;
 
+import javax.crypto.Cipher;
 import javax.crypto.KeyAgreement;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 import javax.websocket.OnClose;
 import javax.websocket.OnError;
 import javax.websocket.OnMessage;
@@ -118,6 +122,38 @@ public class Endpoint {
 
             System.out.println("sharedSecret");
             System.out.println(printHexBinary(sharedSecret));
+
+            // AES Encrypt
+
+            SecretKeySpec skeySpec = new SecretKeySpec(sharedSecret, "AES");
+            IvParameterSpec iv = new IvParameterSpec("0000000000000000".getBytes()); // TODO: secure random with client
+                                                                                     // exchange
+
+            String text = "Test0000000000000000";
+
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS7PADDING");
+            cipher.init(Cipher.ENCRYPT_MODE, skeySpec, iv);
+
+            byte[] encrypted = cipher.doFinal(text.getBytes());
+
+            System.out.println("AES Test -> " + printHexBinary(encrypted));
+
+            byte[] encrypted2 = cipher.doFinal(text.getBytes());
+
+            System.out.println("AES Test -> " + printHexBinary(encrypted2));
+
+            // AES Decrypt
+
+            cipher = Cipher.getInstance("AES/CBC/PKCS7PADDING");
+            cipher.init(Cipher.DECRYPT_MODE, skeySpec, iv);
+
+            byte[] decrypted = cipher.doFinal(encrypted);
+
+            System.out.println("AES " + printHexBinary(encrypted) + " -> " + new String(decrypted));
+
+            byte[] decrypted2 = cipher.doFinal(encrypted2);
+
+            System.out.println("AES " + printHexBinary(encrypted2) + " -> " + new String(decrypted2));
 
         } catch (NoSuchAlgorithmException e1) {
             e1.printStackTrace();
