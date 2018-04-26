@@ -1,40 +1,78 @@
 'use strict';
 
 var hash = require('hash.js');
-var EC = require('elliptic').ec;
+var elliptic = require('elliptic');
 
-var ec = new EC('curve25519');
+/**
+ * Definition of Curve25519 in Weierstrass form for Java server compatibility.
+ * 
+ * See: https://github.com/indutny/elliptic/pull/113
+ */
 
-var key1 = ec.genKeyPair();
-var key2 = ec.genKeyPair();
+var name = 'curve25519-weier';
+var options = {
+  type : 'short',
+  prime : 'p25519',
+  p : '7fffffffffffffff ffffffffffffffff ffffffffffffffff ffffffffffffffed',
+  a : '2aaaaaaaaaaaaaaa aaaaaaaaaaaaaaaa aaaaaaaaaaaaaaaa aaaaaa984914a144',
+  b : '7b425ed097b425ed 097b425ed097b425 ed097b425ed097b4 260b5e9c7710c864',
+  n : '1000000000000000 0000000000000000 14def9dea2f79cd6 5812631a5cf5d3ed',
+  hash : hash.sha256,
+  gRed : false,
+  g : [ '2aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaad245a',
+      '20ae19a1b8a086b4e01edd2c7748d14c923d4d7e6d7c61b229e9c5a27eced3d9' ]
+};
 
-var shared1 = key1.derive(key2.getPublic());
-var shared2 = key2.derive(key1.getPublic());
+Object.defineProperty(elliptic.curves, name, {
+  configurable : true,
+  enumerable : true,
+  get : function() {
+    var curve = new elliptic.curves.PresetCurve(options);
+    Object.defineProperty(elliptic.curves, name, {
+      configurable : true,
+      enumerable : true,
+      value : curve
+    });
+    return curve;
+  }
+});
 
-console.log('Both shared secrets are BN instances');
-console.log(shared1.toString(16));
-console.log(shared2.toString(16));
+/**
+ * Derive of ECDH shared secret. 
+ */
+
+var ec = new elliptic.ec('curve25519-weier');
+var key = ec.genKeyPair();
 
 var socket = new WebSocket('wss://' + location.host + location.pathname + 'crycha');
 
 socket.onopen = function() {
-	console.log('onopen');
-	
-	var message = {command: 'IDENTIFY', email: 'vadim@example.com'};
-	socket.send(JSON.stringify(message));
+
+  console.log('onopen');
+
+  console.log('public key');
+  console.log(key.getPublic());
+  console.log('SEND: ' + key.getPublic().encodeCompressed('hex'));
+
+  socket.send(key.getPublic('hex'));
 }
 
 socket.onclose = function(event) {
-	console.log('onclose');
-	console.log(event);
+  console.log('onclose');
+  console.log(event);
 };
 
 socket.onmessage = function(event) {
-	console.log('onmessage');
-	console.log(event);
+  console.log('onmessage');
+  console.log(event.data);
+
+  console.log('sharedSecret');
+  var shared = key.derive(ec.keyFromPublic(event.data, "hex").getPublic()).toString(16);
+
+  console.log(shared);
 };
 
 socket.onerror = function(error) {
-	console.log('onerror');
-	console.log(error);
+  console.log('onerror');
+  console.log(error);
 };
