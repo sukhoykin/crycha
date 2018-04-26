@@ -3,6 +3,7 @@
 /bin/
 /bower_components/
 /node_modules/
+/reverse/
 package-lock.json
 
 # Ignore Gradle GUI config

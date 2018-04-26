@@ -1,4 +1,4 @@
-# CryCha (DRAFT)
+# (DRAFT)
 
 ## Development
 ### Requirements
