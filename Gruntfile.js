@@ -10,7 +10,10 @@ module.exports = function(grunt) {
           'build/js/bundle.js' : [ 'bower_components/*/lib/*.js' ]
         },
         options : {
-          require : [ 'elliptic', 'hash.js' ]
+          require : [ 'elliptic', 'hash.js' ],
+          alias: {
+            aesjs: './bower_components/aes-js/index.js'
+          }
         }
       }
     },

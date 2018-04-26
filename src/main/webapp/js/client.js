@@ -2,6 +2,7 @@
 
 var hash = require('hash.js');
 var elliptic = require('elliptic');
+var aes = require('aesjs');
 
 /**
  * Definition of Curve25519 in Weierstrass form for Java server compatibility.
@@ -80,6 +81,8 @@ socket.onmessage = function(event) {
   sha256.update(key.getPublic().encode());
   // var shared = sha256.digest();
   console.log(sha256.digest('hex'));
+  
+  
 };
 
 socket.onerror = function(error) {
