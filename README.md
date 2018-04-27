@@ -20,7 +20,7 @@ Communication protocol include three security and functionality tiers. Each tier
 
 * Authentication protocol encrypted within [secured](https://en.wikipedia.org/wiki/Transport_Layer_Security) WebSocket [HTTPS](https://en.wikipedia.org/wiki/HTTPS) connection.
 * Authorization and delivery protocol encrypted with hybrid client-server cipher suite (ECDHE-ECDSA-AES). 
-* Messaging protocol encrypted hybrid client-client cipher suite (ECDHE-EdDSA-AES). 
+* Messaging protocol encrypted with hybrid client-client cipher suite (ECDHE-EdDSA-AES). 
 
 ### Authentication
 
@@ -127,7 +127,7 @@ D = DHpriv.own x DHpub.remote
 * Calculate shared key `K` using shared secret `D`, server public `DHpub` key and client `DHpub` public key:
 
 ```
-K = SHA-256(S || DHpub.server || DHpub.client)
+K = SHA-256(D || DHpub.server || DHpub.client)
 ```
 
 * Create separate AES cipher engines in CBC-mode for `send` end `receive` data using shared key `K` and `R` as initialization vector `IV`.
