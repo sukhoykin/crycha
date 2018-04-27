@@ -138,7 +138,7 @@ K = SHA-256(D || DHpub.server || DHpub.client)
 * Calculate signature `Sdata` for `data` using `DSApriv`:
 
 ```
-Sdata = Signature(DSApriv, data)
+Sdata = DSApriv.Signature(data)
 ```
 
 * Send **data command**:
@@ -156,7 +156,7 @@ Sdata = Signature(DSApriv, data)
 * Verify signature `Sdata` for `data` using remote `DSApub`:
 
 ```
-Verify(Sdata, data, DSApub.remote)
+DSApub.Verify(data, Sdata)
 ```
 
 * If signature is not valid then send **close command**.
