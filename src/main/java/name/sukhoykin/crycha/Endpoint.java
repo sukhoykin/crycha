@@ -4,6 +4,7 @@ import static javax.xml.bind.DatatypeConverter.parseHexBinary;
 import static javax.xml.bind.DatatypeConverter.printHexBinary;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.KeyFactory;
 import java.security.KeyPair;
@@ -129,18 +130,36 @@ public class Endpoint {
             IvParameterSpec iv = new IvParameterSpec("0000000000000000".getBytes()); // TODO: secure random with client
                                                                                      // exchange
 
-            String text = "Test0000000000000000";
+            String text = "Test Test Test Test Test";
 
-            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS7PADDING");
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS7PADDING", BouncyCastleProvider.PROVIDER_NAME);
             cipher.init(Cipher.ENCRYPT_MODE, skeySpec, iv);
 
             byte[] encrypted = cipher.doFinal(text.getBytes());
 
             System.out.println("AES Test -> " + printHexBinary(encrypted));
 
+            byte[] vector = new byte[16];
+            System.arraycopy(encrypted, encrypted.length - 16, vector, 0, 16);
+            cipher.init(Cipher.ENCRYPT_MODE, skeySpec, new IvParameterSpec(vector));
+
             byte[] encrypted2 = cipher.doFinal(text.getBytes());
 
             System.out.println("AES Test -> " + printHexBinary(encrypted2));
+
+            // CTR
+            
+            cipher = Cipher.getInstance("AES/CTR/NOPADDING", BouncyCastleProvider.PROVIDER_NAME);
+            cipher.init(Cipher.ENCRYPT_MODE, skeySpec,
+                    new IvParameterSpec(new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 }));
+
+            byte[] encrypted3 = cipher.doFinal(text.getBytes());
+
+            System.out.println("AES Test -> " + printHexBinary(encrypted3));
+            
+            byte[] encrypted4 = cipher.doFinal(text.getBytes());
+
+            System.out.println("AES Test -> " + printHexBinary(encrypted4));
 
             // AES Decrypt
 
@@ -151,6 +170,10 @@ public class Endpoint {
 
             System.out.println("AES " + printHexBinary(encrypted) + " -> " + new String(decrypted));
 
+            vector = new byte[16];
+            System.arraycopy(encrypted, encrypted.length - 16, vector, 0, 16);
+            cipher.init(Cipher.DECRYPT_MODE, skeySpec, new IvParameterSpec(vector));
+            
             byte[] decrypted2 = cipher.doFinal(encrypted2);
 
             System.out.println("AES " + printHexBinary(encrypted2) + " -> " + new String(decrypted2));

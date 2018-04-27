@@ -86,8 +86,9 @@ socket.onmessage = function(event) {
                                                           // secure random from
                                                           // server
   var aesCbc = new aesjs.ModeOfOperation.cbc(shared, iv);
+  var aesCtr = new aesjs.ModeOfOperation.ctr(shared, new aesjs.Counter(1));
 
-  var textBytes = aesjs.padding.pkcs7.pad(aesjs.utils.utf8.toBytes('Test'));
+  var textBytes = aesjs.padding.pkcs7.pad(aesjs.utils.utf8.toBytes('Test Test Test Test Test'));
 
   var encryptedBytes = aesCbc.encrypt(textBytes);
   console.log('AES Test -> ' + aesjs.utils.hex.fromBytes(encryptedBytes));
@@ -95,7 +96,21 @@ socket.onmessage = function(event) {
   var encryptedBytes2 = aesCbc.encrypt(textBytes);
   console.log('AES Test -> ' + aesjs.utils.hex.fromBytes(encryptedBytes2));
 
+  ///
+  
+  textBytes = aesjs.utils.utf8.toBytes('Test Test Test Test Test');
+  
+  var encryptedBytes3 = aesCtr.encrypt(textBytes);
+  console.log('AES Test -> ' + aesjs.utils.hex.fromBytes(encryptedBytes3));
+  //aesCtr = new aesjs.ModeOfOperation.ctr(shared, new aesjs.Counter(3));
+
+  var encryptedBytes4 = aesCtr.encrypt(textBytes);
+  console.log('AES Test -> ' + aesjs.utils.hex.fromBytes(encryptedBytes4));
+  
+  ///
+  
   aesCbc = new aesjs.ModeOfOperation.cbc(shared, iv);
+  aesCtr = new aesjs.ModeOfOperation.ctr(shared, new aesjs.Counter(1));
 
   var decryptedBytes = aesCbc.decrypt(encryptedBytes);
   console.log('AES ' + aesjs.utils.hex.fromBytes(encryptedBytes) + ' -> '
@@ -104,6 +119,16 @@ socket.onmessage = function(event) {
   var decryptedBytes2 = aesCbc.decrypt(encryptedBytes2);
   console.log('AES ' + aesjs.utils.hex.fromBytes(encryptedBytes2) + ' -> '
       + aesjs.utils.utf8.fromBytes(aesjs.padding.pkcs7.strip(decryptedBytes2)));
+  
+  ///
+  
+  var decryptedBytes3 = aesCtr.decrypt(encryptedBytes3);
+  console.log('AES ' + aesjs.utils.hex.fromBytes(encryptedBytes3) + ' -> '
+      + aesjs.utils.utf8.fromBytes(decryptedBytes3));
+
+  var decryptedBytes4 = aesCtr.decrypt(encryptedBytes4);
+  console.log('AES ' + aesjs.utils.hex.fromBytes(encryptedBytes4) + ' -> '
+      + aesjs.utils.utf8.fromBytes(decryptedBytes4));
 };
 
 socket.onerror = function(error) {
