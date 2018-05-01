@@ -44,7 +44,7 @@ Communication protocol include three security and functionality tiers. Each tier
 * Calculate a time-based one-time password `TOTP` that valid for 1 minute:
 
 ```
-TOTP = HMAC-SHA-256(R, now() / 60)
+TOTP = HMAC-SHA-128(R, now() / 60)
 ```
 
 * Send email with `TOTP` to client `email` address.
@@ -106,7 +106,7 @@ Skey = HMAC-SHA-256(TOTP, DHpub || DSApub)
 }
 ```
 
-* Create new session for this `email` and associate connection, client/server keys and secure random `R` as cipher initialization vector `IV` with the session.
+* Create new session for this `email` and associate connection, client/server keys and `TOTP` as cipher initialization vector `IV` with the session.
 
 **Client**
 
@@ -130,7 +130,7 @@ D = DHpriv.own x DHpub.remote
 K = SHA-256(D || DHpub.server || DHpub.client)
 ```
 
-* Create separate AES cipher engines in CBC-mode for `send` end `receive` data using shared key `K` and `R` as initialization vector `IV`.
+* Create separate AES cipher engines in CBC-mode for `send` end `receive` data using shared key `K` and `TOTP` as initialization vector `IV`.
 
 **Send data**
 
@@ -162,6 +162,21 @@ DSApub.Verify(data, Sdata)
 * If signature is not valid then send **close command**.
 
 ### Authorization
+
+**Client**
+
+* Send **authorize command** with recipient `email` address:
+
+```javascript
+{
+  command: 'authorize',
+  email: '{email}'
+}
+```
+
+**Server**
+
+* Check recipient authenticated on server.
 
 ### Client-Client TLS
 
