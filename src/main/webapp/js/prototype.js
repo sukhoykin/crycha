@@ -45,7 +45,7 @@ Object.defineProperty(elliptic.curves, name, {
 var ec = new elliptic.ec('curve25519-weier');
 var key = ec.genKeyPair();
 
-var socket = new WebSocket('wss://' + location.host + location.pathname + 'api');
+var socket = new WebSocket('wss://' + location.host + '/cryptic/prototype');
 
 socket.onopen = function() {
 

@@ -37,8 +37,8 @@ import org.bouncycastle.math.ec.ECPoint;
 
 import com.google.gson.Gson;
 
-@ServerEndpoint("/api")
-public class Endpoint {
+@ServerEndpoint("/prototype")
+public class PrototypeEndpoint {
 
     private Gson gson = new Gson();
 
