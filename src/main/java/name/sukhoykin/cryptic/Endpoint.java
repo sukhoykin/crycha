@@ -1,4 +1,4 @@
-package name.sukhoykin.crycha;
+package name.sukhoykin.cryptic;
 
 import static javax.xml.bind.DatatypeConverter.parseHexBinary;
 import static javax.xml.bind.DatatypeConverter.printHexBinary;
@@ -37,7 +37,7 @@ import org.bouncycastle.math.ec.ECPoint;
 
 import com.google.gson.Gson;
 
-@ServerEndpoint("/crycha")
+@ServerEndpoint("/api")
 public class Endpoint {
 
     private Gson gson = new Gson();

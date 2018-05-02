@@ -1,4 +1,4 @@
-package name.sukhoykin.crycha;
+package name.sukhoykin.cryptic;
 
 public class AuthorizeMessage {
 

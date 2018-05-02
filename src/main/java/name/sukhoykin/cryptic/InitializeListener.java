@@ -1,4 +1,4 @@
-package name.sukhoykin.crycha;
+package name.sukhoykin.cryptic;
 
 import java.security.Provider;
 import java.security.Provider.Service;
