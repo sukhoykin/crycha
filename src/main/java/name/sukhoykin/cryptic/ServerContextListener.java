@@ -9,7 +9,7 @@ import javax.servlet.annotation.WebListener;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 @WebListener
-public class InitializeListener implements ServletContextListener {
+public class ServerContextListener implements ServletContextListener {
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
