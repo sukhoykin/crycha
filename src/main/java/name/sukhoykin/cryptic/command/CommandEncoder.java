@@ -8,7 +8,7 @@ import com.google.gson.Gson;
 
 public class CommandEncoder implements Text<CommandMessage> {
 
-    private Gson gson = new Gson();
+    private final Gson gson = new Gson();
 
     @Override
     public void init(EndpointConfig config) {

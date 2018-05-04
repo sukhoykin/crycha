@@ -10,7 +10,7 @@ import com.google.gson.JsonParseException;
 
 public class CommandDeserializer implements JsonDeserializer<CommandMessage> {
 
-    private Gson gson = new Gson();
+    private final Gson gson = new Gson();
 
     @Override
     public CommandMessage deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)

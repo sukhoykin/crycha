@@ -10,12 +10,24 @@ public class AuthenticateCommand extends CommandMessage {
         super("authenticate");
     }
 
+    public void setDh(String dh) {
+        this.dh = dh;
+    }
+
     public String getDh() {
         return dh;
     }
 
+    public void setDsa(String dsa) {
+        this.dsa = dsa;
+    }
+
     public String getDsa() {
         return dsa;
+    }
+
+    public void setSignature(String signature) {
+        this.signature = signature;
     }
 
     public String getSignature() {

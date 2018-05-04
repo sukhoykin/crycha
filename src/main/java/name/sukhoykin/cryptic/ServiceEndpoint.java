@@ -59,7 +59,7 @@ public class ServiceEndpoint implements ClientService {
     @OnMessage
     public void onMessage(Session session, CommandMessage command) {
 
-        log.debug("#{} Command: {}", session.getId(), command.getCommand());
+        log.debug("#{} -> {}", session.getId(), command);
 
         this.session.set(session);
 

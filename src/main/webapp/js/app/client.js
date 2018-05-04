@@ -7,8 +7,8 @@ function CrypticClient(url) {
 
   Curve25519.defineCurve(elliptic.curves, hashjs);
 
-  var curve = new elliptic.ec(Curve25519.name);
-  var serverSuite = new CipherSuite(curve);
+  var curve25519 = new elliptic.ec(Curve25519.name);
+  var cipher = new CipherSuite(curve25519, hashjs);
 
   if (url === undefined) {
     url = 'wss://' + location.host + location.pathname + 'api';
@@ -32,8 +32,6 @@ function CrypticClient(url) {
     onError(error);
   }
 
-  self.onReady = null;
-
   var onOpen = function() {
     console.log('Connected to %s', url);
     if (self.onReady) {
@@ -42,8 +40,25 @@ function CrypticClient(url) {
   }
 
   var onMessage = function(event) {
+
     console.log('Message received');
-    console.log(event);
+    console.log(event.data);
+
+    try {
+
+      var command = JSON.parse(event.data);
+
+      switch (command.command) {
+      case 'debug-totp':
+        if (self.onDebug) {
+          self.onDebug(command.data);
+        }
+        break;
+      }
+
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   var onClose = function(event) {
@@ -63,15 +78,30 @@ function CrypticClient(url) {
     console.log('Message send');
     console.log(message);
   }
-  
+
   var identify = function(email) {
+
     sendMessage({
       command : 'identify',
       email : email
     });
   }
 
+  var authenticate = function(totp) {
+
+    sendMessage({
+      command : 'authenticate',
+      dh : cipher.publicKeys.dh,
+      dsa : cipher.publicKeys.dsa,
+      signature : cipher.signPublicKeys(totp)
+    });
+  }
+
+  self.onReady = null;
+  self.onDebug = null;
+
   self.identify = identify;
+  self.authenticate = authenticate;
 }
 
 /**

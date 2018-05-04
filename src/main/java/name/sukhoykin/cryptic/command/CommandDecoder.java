@@ -10,13 +10,11 @@ import com.google.gson.JsonParseException;
 
 public class CommandDecoder implements Decoder.Text<CommandMessage> {
 
-    private Gson gson;
+    private final Gson gson = new GsonBuilder().registerTypeAdapter(CommandMessage.class, new CommandDeserializer())
+            .create();
 
     @Override
     public void init(EndpointConfig config) {
-        GsonBuilder builder = new GsonBuilder();
-        builder.registerTypeAdapter(CommandMessage.class, new CommandDeserializer());
-        gson = builder.create();
     }
 
     @Override
