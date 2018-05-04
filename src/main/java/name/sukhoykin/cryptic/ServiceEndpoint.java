@@ -2,6 +2,8 @@ package name.sukhoykin.cryptic;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import javax.websocket.OnClose;
 import javax.websocket.OnError;
@@ -31,7 +33,9 @@ public class ServiceEndpoint implements ClientService {
     private final Map<Class<?>, CommandHandler<? extends CommandMessage>> dispatch = new HashMap<>();
 
     private final ThreadLocal<Session> session = new ThreadLocal<>();
-    private final Map<Session, ClientEndpoint> sessionClient = new HashMap<>();
+
+    private final ConcurrentMap<Session, ClientEndpoint> clients = new ConcurrentHashMap<>();
+    private final ConcurrentMap<String, ClientEndpoint> authenticatedClients = new ConcurrentHashMap<>();
 
     public ServiceEndpoint() {
         dispatch.put(IdentifyCommand.class, new IdentifyHandler());
@@ -53,7 +57,7 @@ public class ServiceEndpoint implements ClientService {
     @OnOpen
     public void onOpen(Session session) {
         log.debug("#{} Connected", session.getId());
-        sessionClient.put(session, new ClientEndpoint(session));
+        clients.put(session, new ClientEndpoint(session));
     }
 
     @OnMessage
@@ -73,7 +77,7 @@ public class ServiceEndpoint implements ClientService {
     @OnClose
     public void onClose(Session session) {
         log.debug("#{} Disconnected", session.getId());
-        sessionClient.remove(session);
+        clients.remove(session);
     }
 
     @OnError
@@ -83,6 +87,6 @@ public class ServiceEndpoint implements ClientService {
 
     @Override
     public ClientEndpoint getClientEndpoint() {
-        return sessionClient.get(session.get());
+        return clients.get(session.get());
     }
 }
