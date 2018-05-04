@@ -7,6 +7,9 @@ function CrypticClient(url) {
 
   Curve25519.defineCurve(elliptic.curves, hashjs);
 
+  var curve = new elliptic.ec(Curve25519.name);
+  var serverSuite = new CipherSuite(curve);
+
   if (url === undefined) {
     url = 'wss://' + location.host + location.pathname + 'api';
   }
@@ -28,7 +31,7 @@ function CrypticClient(url) {
   socket.onerror = function(error) {
     onError(error);
   }
-  
+
   self.onReady = null;
 
   var onOpen = function() {
@@ -52,19 +55,23 @@ function CrypticClient(url) {
     console.log('Connection error');
     console.log(error);
   }
-  
+
   var sendMessage = function(message) {
-    socket.send(message);
+
+    socket.send(JSON.stringify(message));
+
     console.log('Message send');
     console.log(message);
   }
-
-  self.identify = function(email) {
+  
+  var identify = function(email) {
     sendMessage({
       command : 'identify',
       email : email
     });
   }
+
+  self.identify = identify;
 }
 
 /**
@@ -76,9 +83,10 @@ function CrypticClient(url) {
 function Curve25519() {
 }
 
+Curve25519.name = 'curve25519-weier';
 Curve25519.defineCurve = function(curves, hashjs) {
 
-  var name = 'curve25519-weier';
+  var name = Curve25519.name;
 
   var options = {
     type : 'short',

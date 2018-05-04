@@ -19,9 +19,14 @@ repositories {
 }
 
 dependencies {
-    providedCompile 'javax.websocket:javax.websocket-api:+'
-    compile 'com.google.code.gson:gson:+'
-    compile 'org.bouncycastle:bcprov-jdk15on:+'
+
+    providedCompile 'javax.servlet:javax.servlet-api:3.1'
+    providedCompile 'javax.websocket:javax.websocket-api:1.1'
+    
+    compile 'com.google.code.gson:gson:2.+'
+    compile 'org.bouncycastle:bcprov-jdk15on:1.+'
+    compile 'org.slf4j:slf4j-api:1.7.+'
+    compile 'ch.qos.logback:logback-classic:1.2.+'
 }
 
 gretty {
