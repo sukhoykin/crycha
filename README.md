@@ -26,7 +26,7 @@ Communication protocol include three security and functionality tiers. Each tier
 
 **Client**
 
-* Generate ECDH key pair `DHpriv` and `DHpub` with NIST P-521 curve for key exchange. 
+* Generate ECDH key pair `DHpriv` and `DHpub` with Curve25519 curve for key exchange. 
 * Generate ECDSA key pair `DSApriv` and `DSApub` with Curve25519 curve for data signature.
 * Initiate secured WebSocket connection (wss) to the server.
 * Send **identify command** with `email` address:
@@ -44,7 +44,7 @@ Communication protocol include three security and functionality tiers. Each tier
 * Calculate a time-based one-time password `TOTP` that valid for 1 minute:
 
 ```
-TOTP = HMAC-SHA-128(R, now() / 60)
+TOTP = HMAC-MD5(R, now() / 60)
 ```
 
 * Send email with `TOTP` to client `email` address.
@@ -92,7 +92,7 @@ Skey = HMAC-SHA-256(TOTP, DHpub || DSApub)
 }
 ```
 
-* Generate ECDH key pair `DHpriv` and `DHpub` with NIST P-521 curve for key exchange. 
+* Generate ECDH key pair `DHpriv` and `DHpub` with Curve25519 curve for key exchange. 
 * Generate ECDSA key pair `DSApriv` and `DSApub` with Curve25519 curve for data signature.
 * Calculate signature `Skey` for server public keys.
 * Send **authenticate command** to client:
