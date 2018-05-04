@@ -31,6 +31,7 @@ public class ServiceEndpoint implements ClientService {
     private final Map<Class<?>, CommandHandler<? extends CommandMessage>> dispatch = new HashMap<>();
 
     private final ThreadLocal<Session> session = new ThreadLocal<>();
+    private final Map<Session, ClientEndpoint> sessionClient = new HashMap<>();
 
     public ServiceEndpoint() {
         dispatch.put(IdentifyCommand.class, new IdentifyHandler());
@@ -52,6 +53,7 @@ public class ServiceEndpoint implements ClientService {
     @OnOpen
     public void onOpen(Session session) {
         log.debug("#{} Connected", session.getId());
+        sessionClient.put(session, new ClientEndpoint(session));
     }
 
     @OnMessage
@@ -70,7 +72,8 @@ public class ServiceEndpoint implements ClientService {
 
     @OnClose
     public void onClose(Session session) {
-        log.debug("#{} Disconnected: ", session.getId());
+        log.debug("#{} Disconnected", session.getId());
+        sessionClient.remove(session);
     }
 
     @OnError
@@ -79,14 +82,7 @@ public class ServiceEndpoint implements ClientService {
     }
 
     @Override
-    public void setCipherSuite(CipherSuite suite) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public CipherSuite getCipherSuite() {
-        // TODO Auto-generated method stub
-        return null;
+    public ClientEndpoint getClientEndpoint() {
+        return sessionClient.get(session.get());
     }
 }
