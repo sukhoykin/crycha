@@ -8,7 +8,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
 
-public class CommandDecoder implements Decoder.Text<CommandMessage> {
+public class MessageDecoder implements Decoder.Text<CommandMessage> {
 
     private final Gson gson = new GsonBuilder().registerTypeAdapter(CommandMessage.class, new CommandDeserializer())
             .create();

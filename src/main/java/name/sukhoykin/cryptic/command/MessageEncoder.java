@@ -6,7 +6,7 @@ import javax.websocket.EndpointConfig;
 
 import com.google.gson.Gson;
 
-public class CommandEncoder implements Text<CommandMessage> {
+public class MessageEncoder implements Text<CommandMessage> {
 
     private final Gson gson = new Gson();
 

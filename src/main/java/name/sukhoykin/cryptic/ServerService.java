@@ -10,14 +10,13 @@ import javax.websocket.OnError;
 import javax.websocket.OnMessage;
 import javax.websocket.OnOpen;
 import javax.websocket.Session;
-import javax.websocket.server.ServerEndpoint;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import name.sukhoykin.cryptic.command.AuthenticateCommand;
-import name.sukhoykin.cryptic.command.CommandDecoder;
-import name.sukhoykin.cryptic.command.CommandEncoder;
+import name.sukhoykin.cryptic.command.MessageDecoder;
+import name.sukhoykin.cryptic.command.MessageEncoder;
 import name.sukhoykin.cryptic.command.CommandMessage;
 import name.sukhoykin.cryptic.command.IdentifyCommand;
 import name.sukhoykin.cryptic.handler.AuthenticateHandler;
@@ -25,19 +24,19 @@ import name.sukhoykin.cryptic.handler.CommandException;
 import name.sukhoykin.cryptic.handler.CommandHandler;
 import name.sukhoykin.cryptic.handler.IdentifyHandler;
 
-@ServerEndpoint(value = "/api", encoders = { CommandEncoder.class }, decoders = { CommandDecoder.class })
-public class ServiceEndpoint implements ClientService {
+@javax.websocket.server.ServerEndpoint(value = "/api", encoders = { MessageEncoder.class }, decoders = { MessageDecoder.class })
+public class ServerService implements ServiceDomain {
 
-    private static final Logger log = LoggerFactory.getLogger(ServiceEndpoint.class);
+    private static final Logger log = LoggerFactory.getLogger(ServerService.class);
 
     private final Map<Class<?>, CommandHandler<? extends CommandMessage>> dispatch = new HashMap<>();
 
     private final ThreadLocal<Session> session = new ThreadLocal<>();
 
-    private final ConcurrentMap<Session, ClientEndpoint> clients = new ConcurrentHashMap<>();
-    private final ConcurrentMap<String, ClientEndpoint> authenticatedClients = new ConcurrentHashMap<>();
+    private final ConcurrentMap<Session, ClientSession> clients = new ConcurrentHashMap<>();
+    private final ConcurrentMap<String, ClientSession> authenticatedClients = new ConcurrentHashMap<>();
 
-    public ServiceEndpoint() {
+    public ServerService() {
         dispatch.put(IdentifyCommand.class, new IdentifyHandler());
         dispatch.put(AuthenticateCommand.class, new AuthenticateHandler());
     }
@@ -50,14 +49,16 @@ public class ServiceEndpoint implements ClientService {
         if (handler == null) {
             throw new CommandException("Unsupported command: " + command.getCommand());
         }
+        
+        ClientSession client =  clients.get(session.get());
 
-        handler.handleCommand(this, command);
+        handler.handleCommand(this, client, command);
     }
 
     @OnOpen
     public void onOpen(Session session) {
         log.debug("#{} Connected", session.getId());
-        clients.put(session, new ClientEndpoint(session));
+        clients.put(session, new ClientSession(session));
     }
 
     @OnMessage
@@ -83,10 +84,5 @@ public class ServiceEndpoint implements ClientService {
     @OnError
     public void onError(Session session, Throwable error) {
         log.error("#{} {}", session.getId(), error.getMessage());
-    }
-
-    @Override
-    public ClientEndpoint getClientEndpoint() {
-        return clients.get(session.get());
     }
 }

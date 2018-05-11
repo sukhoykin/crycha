@@ -1,8 +1,9 @@
 package name.sukhoykin.cryptic.handler;
 
-import name.sukhoykin.cryptic.ClientService;
+import name.sukhoykin.cryptic.ClientSession;
+import name.sukhoykin.cryptic.ServiceDomain;
 import name.sukhoykin.cryptic.command.CommandMessage;
 
 public interface CommandHandler<T extends CommandMessage> {
-    public void handleCommand(ClientService service, T command) throws CommandException;
+    public void handleCommand(ServiceDomain service, ClientSession client, T command) throws CommandException;
 }

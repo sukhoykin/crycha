@@ -1,6 +1,7 @@
 package name.sukhoykin.cryptic;
 
 import java.io.IOException;
+import java.security.SecureRandom;
 
 import javax.websocket.EncodeException;
 import javax.websocket.Session;
@@ -10,29 +11,30 @@ import org.slf4j.LoggerFactory;
 
 import name.sukhoykin.cryptic.command.CommandMessage;
 
-public class ClientEndpoint {
+public class ClientSession {
 
-    private final static Logger log = LoggerFactory.getLogger(ClientEndpoint.class);
+    private final static Logger log = LoggerFactory.getLogger(ClientSession.class);
 
-    private Session session;
-    private CipherSuite cipher = new CipherSuite();
+    private final Session session;
+    
+    private final byte[] randomKey = new byte[16];
+    private String clientId;
 
-    private String id;
-
-    public ClientEndpoint(Session session) {
+    public ClientSession(Session session) {
         this.session = session;
+        new SecureRandom().nextBytes(randomKey);
+    }
+    
+    public byte[] getRandomKey() {
+        return randomKey;
     }
 
-    public CipherSuite getCipherSuite() {
-        return cipher;
+    public void setClientId(String clientId) {
+        this.clientId = clientId;
     }
 
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getId() {
-        return id;
+    public String getClientId() {
+        return clientId;
     }
 
     public void sendCommand(CommandMessage command) throws IOException, EncodeException {
