@@ -1,5 +1,7 @@
 package name.sukhoykin.cryptic.command;
 
+import name.sukhoykin.cryptic.CommandMessage;
+
 public class DebugCommand extends CommandMessage {
 
     private String data;

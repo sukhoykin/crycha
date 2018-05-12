@@ -9,8 +9,6 @@ import javax.websocket.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import name.sukhoykin.cryptic.command.CommandMessage;
-
 public class ClientSession {
 
     private final static Logger log = LoggerFactory.getLogger(ClientSession.class);

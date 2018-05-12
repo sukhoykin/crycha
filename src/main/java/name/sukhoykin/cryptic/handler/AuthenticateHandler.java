@@ -7,6 +7,8 @@ import org.slf4j.LoggerFactory;
 
 import name.sukhoykin.cryptic.CipherException;
 import name.sukhoykin.cryptic.ClientSession;
+import name.sukhoykin.cryptic.CommandException;
+import name.sukhoykin.cryptic.CommandHandler;
 import name.sukhoykin.cryptic.ServiceDomain;
 import name.sukhoykin.cryptic.command.AuthenticateCommand;
 

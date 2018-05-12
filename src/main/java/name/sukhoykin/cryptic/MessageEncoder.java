@@ -1,4 +1,4 @@
-package name.sukhoykin.cryptic.command;
+package name.sukhoykin.cryptic;
 
 import javax.websocket.EncodeException;
 import javax.websocket.Encoder.Text;

@@ -1,4 +1,4 @@
-package name.sukhoykin.cryptic.command;
+package name.sukhoykin.cryptic;
 
 import com.google.gson.Gson;
 

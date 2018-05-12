@@ -1,4 +1,4 @@
-package name.sukhoykin.cryptic.command;
+package name.sukhoykin.cryptic;
 
 import java.lang.reflect.Type;
 
@@ -7,6 +7,9 @@ import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
+
+import name.sukhoykin.cryptic.command.AuthenticateCommand;
+import name.sukhoykin.cryptic.command.IdentifyCommand;
 
 public class CommandDeserializer implements JsonDeserializer<CommandMessage> {
 
@@ -19,9 +22,9 @@ public class CommandDeserializer implements JsonDeserializer<CommandMessage> {
         String command = json.getAsJsonObject().get("command").getAsString();
 
         switch (command) {
-        case "identify":
+        case IdentifyCommand.NAME:
             return gson.fromJson(json, IdentifyCommand.class);
-        case "authenticate":
+        case AuthenticateCommand.NAME:
             return gson.fromJson(json, AuthenticateCommand.class);
         default:
             throw new JsonParseException("Invalid command: " + command);

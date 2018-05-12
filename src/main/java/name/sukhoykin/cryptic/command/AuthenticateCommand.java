@@ -1,13 +1,17 @@
 package name.sukhoykin.cryptic.command;
 
+import name.sukhoykin.cryptic.CommandMessage;
+
 public class AuthenticateCommand extends CommandMessage {
+
+    public static final String NAME = "authenticate";
 
     private String dh;
     private String dsa;
     private String signature;
 
     public AuthenticateCommand() {
-        super("authenticate");
+        super(NAME);
     }
 
     public void setDh(String dh) {

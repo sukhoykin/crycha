@@ -13,6 +13,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import name.sukhoykin.cryptic.ClientSession;
+import name.sukhoykin.cryptic.CommandException;
+import name.sukhoykin.cryptic.CommandHandler;
 import name.sukhoykin.cryptic.ServiceDomain;
 import name.sukhoykin.cryptic.command.DebugCommand;
 import name.sukhoykin.cryptic.command.IdentifyCommand;
@@ -45,7 +47,7 @@ public class IdentifyHandler implements CommandHandler<IdentifyCommand> {
         }
     }
 
-    protected byte[] calculateTOTP(final byte[] randomKey, String algorithm) throws CommandException {
+    public byte[] calculateTOTP(final byte[] randomKey, String algorithm) throws CommandException {
 
         SecretKeySpec secretKeySpec = new SecretKeySpec(randomKey, algorithm);
 

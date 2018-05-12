@@ -10,24 +10,20 @@ import javax.websocket.OnError;
 import javax.websocket.OnMessage;
 import javax.websocket.OnOpen;
 import javax.websocket.Session;
+import javax.websocket.server.ServerEndpoint;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import name.sukhoykin.cryptic.command.AuthenticateCommand;
-import name.sukhoykin.cryptic.command.MessageDecoder;
-import name.sukhoykin.cryptic.command.MessageEncoder;
-import name.sukhoykin.cryptic.command.CommandMessage;
 import name.sukhoykin.cryptic.command.IdentifyCommand;
 import name.sukhoykin.cryptic.handler.AuthenticateHandler;
-import name.sukhoykin.cryptic.handler.CommandException;
-import name.sukhoykin.cryptic.handler.CommandHandler;
 import name.sukhoykin.cryptic.handler.IdentifyHandler;
 
-@javax.websocket.server.ServerEndpoint(value = "/api", encoders = { MessageEncoder.class }, decoders = { MessageDecoder.class })
-public class ServerService implements ServiceDomain {
+@ServerEndpoint(value = "/api", encoders = { MessageEncoder.class }, decoders = { MessageDecoder.class })
+public class ServiceEndpoint implements ServiceDomain {
 
-    private static final Logger log = LoggerFactory.getLogger(ServerService.class);
+    private static final Logger log = LoggerFactory.getLogger(ServiceEndpoint.class);
 
     private final Map<Class<?>, CommandHandler<? extends CommandMessage>> dispatch = new HashMap<>();
 
@@ -36,7 +32,7 @@ public class ServerService implements ServiceDomain {
     private final ConcurrentMap<Session, ClientSession> clients = new ConcurrentHashMap<>();
     private final ConcurrentMap<String, ClientSession> authenticatedClients = new ConcurrentHashMap<>();
 
-    public ServerService() {
+    public ServiceEndpoint() {
         dispatch.put(IdentifyCommand.class, new IdentifyHandler());
         dispatch.put(AuthenticateCommand.class, new AuthenticateHandler());
     }
@@ -84,5 +80,25 @@ public class ServerService implements ServiceDomain {
     @OnError
     public void onError(Session session, Throwable error) {
         log.error("#{} {}", session.getId(), error.getMessage());
+    }
+
+    @Override
+    public <T extends CommandHandler<?>> T getCommandHandler(Class<T> classOfT) {
+        return null;
+    }
+
+    @Override
+    public void registerClient(ClientSession client) {
+        
+    }
+
+    @Override
+    public ClientSession lookupClient(String clientId) {
+        return null;
+    }
+
+    @Override
+    public void unregisterClient(String clientId) {
+        
     }
 }
