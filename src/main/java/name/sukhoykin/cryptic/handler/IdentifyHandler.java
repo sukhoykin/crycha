@@ -23,23 +23,22 @@ public class IdentifyHandler implements CommandHandler<IdentifyCommand> {
 
     private static final Logger log = LoggerFactory.getLogger(IdentifyHandler.class);
 
-    public static final String TOTP_ALGORITHM = "HmacMD5";
+    private final String TOTP_ALGORITHM = "HmacMD5";
 
     @Override
     public void handleCommand(ServiceDomain service, ClientSession client, IdentifyCommand command)
             throws CommandException {
 
-        client.setClientId(command.getEmail());
-
         try {
 
-            byte[] totp = calculateTOTP(client.getRandomKey(), TOTP_ALGORITHM);
+            byte[] totp = calculateTOTP(client.getRandomKey());
 
             log.debug("EMAIL {} TOTP {}", command.getEmail(), DatatypeConverter.printHexBinary(totp).toLowerCase());
 
             DebugCommand debug = new DebugCommand("totp");
             debug.setData(DatatypeConverter.printHexBinary(totp).toLowerCase());
 
+            client.setClientId(command.getEmail());
             client.sendCommand(debug);
 
         } catch (IOException | EncodeException e) {
@@ -47,13 +46,13 @@ public class IdentifyHandler implements CommandHandler<IdentifyCommand> {
         }
     }
 
-    public byte[] calculateTOTP(final byte[] randomKey, String algorithm) throws CommandException {
+    public byte[] calculateTOTP(final byte[] randomKey) throws CommandException {
 
-        SecretKeySpec secretKeySpec = new SecretKeySpec(randomKey, algorithm);
+        SecretKeySpec secretKeySpec = new SecretKeySpec(randomKey, TOTP_ALGORITHM);
 
         try {
 
-            Mac mac = Mac.getInstance(algorithm);
+            Mac mac = Mac.getInstance(TOTP_ALGORITHM);
             mac.init(secretKeySpec);
 
             return mac.doFinal(((System.currentTimeMillis() / 1000 / 60) + "").getBytes());

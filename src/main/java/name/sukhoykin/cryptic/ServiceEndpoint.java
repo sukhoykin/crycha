@@ -25,7 +25,7 @@ public class ServiceEndpoint implements ServiceDomain {
 
     private static final Logger log = LoggerFactory.getLogger(ServiceEndpoint.class);
 
-    private final Map<Class<?>, CommandHandler<? extends CommandMessage>> dispatch = new HashMap<>();
+    private final Map<Class<? extends CommandMessage>, CommandHandler<? extends CommandMessage>> dispatch = new HashMap<>();
 
     private final ThreadLocal<Session> session = new ThreadLocal<>();
 
@@ -83,7 +83,7 @@ public class ServiceEndpoint implements ServiceDomain {
     }
 
     @Override
-    public <T extends CommandHandler<?>> T getCommandHandler(Class<T> classOfT) {
+    public <T extends CommandHandler<?>> T getCommandHandler(Class<T> classOfHandler) {
         return null;
     }
 

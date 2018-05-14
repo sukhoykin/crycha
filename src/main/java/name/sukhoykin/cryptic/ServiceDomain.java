@@ -2,7 +2,7 @@ package name.sukhoykin.cryptic;
 
 public interface ServiceDomain {
 
-    public <T extends CommandHandler<?>> T getCommandHandler(Class<T> classOfT);
+    public <T extends CommandHandler<?>> T getCommandHandler(Class<T> classOfHandler);
 
     public void registerClient(ClientSession client);
 

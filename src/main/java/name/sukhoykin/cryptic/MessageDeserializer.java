@@ -11,7 +11,7 @@ import com.google.gson.JsonParseException;
 import name.sukhoykin.cryptic.command.AuthenticateCommand;
 import name.sukhoykin.cryptic.command.IdentifyCommand;
 
-public class CommandDeserializer implements JsonDeserializer<CommandMessage> {
+public class MessageDeserializer implements JsonDeserializer<CommandMessage> {
 
     private final Gson gson = new Gson();
 

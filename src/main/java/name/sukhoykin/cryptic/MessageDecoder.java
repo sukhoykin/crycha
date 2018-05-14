@@ -10,7 +10,7 @@ import com.google.gson.JsonParseException;
 
 public class MessageDecoder implements Decoder.Text<CommandMessage> {
 
-    private final Gson gson = new GsonBuilder().registerTypeAdapter(CommandMessage.class, new CommandDeserializer())
+    private final Gson gson = new GsonBuilder().registerTypeAdapter(CommandMessage.class, new MessageDeserializer())
             .create();
 
     @Override
