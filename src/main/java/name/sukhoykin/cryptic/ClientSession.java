@@ -14,7 +14,7 @@ public class ClientSession {
     private final static Logger log = LoggerFactory.getLogger(ClientSession.class);
 
     private final Session session;
-    
+
     private final byte[] randomKey = new byte[16];
     private String clientId;
 
@@ -22,7 +22,7 @@ public class ClientSession {
         this.session = session;
         new SecureRandom().nextBytes(randomKey);
     }
-    
+
     public byte[] getRandomKey() {
         return randomKey;
     }
