@@ -1,12 +1,10 @@
 package name.sukhoykin.cryptic.handler;
 
-import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
-import javax.websocket.EncodeException;
 import javax.xml.bind.DatatypeConverter;
 
 import org.slf4j.Logger;
@@ -29,21 +27,15 @@ public class IdentifyHandler implements CommandHandler<IdentifyCommand> {
     public void handleCommand(ServiceDomain service, ClientSession client, IdentifyCommand command)
             throws CommandException {
 
-        try {
+        byte[] totp = calculateTOTP(client.getRandomKey());
 
-            byte[] totp = calculateTOTP(client.getRandomKey());
+        log.debug("EMAIL {} TOTP {}", command.getEmail(), DatatypeConverter.printHexBinary(totp).toLowerCase());
 
-            log.debug("EMAIL {} TOTP {}", command.getEmail(), DatatypeConverter.printHexBinary(totp).toLowerCase());
+        DebugCommand debug = new DebugCommand("totp");
+        debug.setData(DatatypeConverter.printHexBinary(totp).toLowerCase());
 
-            DebugCommand debug = new DebugCommand("totp");
-            debug.setData(DatatypeConverter.printHexBinary(totp).toLowerCase());
-
-            client.setClientId(command.getEmail());
-            client.sendCommand(debug);
-
-        } catch (IOException | EncodeException e) {
-            throw new CommandException(e);
-        }
+        client.setClientId(command.getEmail());
+        client.sendCommand(debug);
     }
 
     public byte[] calculateTOTP(final byte[] randomKey) throws CommandException {

@@ -23,13 +23,12 @@ public class ServiceEndpoint extends CommandDispatcher implements ServiceDomain 
 
     private static final Logger log = LoggerFactory.getLogger(ServiceEndpoint.class);
 
-    private final ThreadLocal<Session> session = new ThreadLocal<>();
+    // private final ThreadLocal<Session> session = new ThreadLocal<>();
 
     private final ConcurrentMap<Session, ClientSession> clients = new ConcurrentHashMap<>();
     private final ConcurrentMap<String, ClientSession> authenticatedClients = new ConcurrentHashMap<>();
 
     public ServiceEndpoint() {
-
         registerCommandHandler(IdentifyCommand.class, new IdentifyHandler());
         registerCommandHandler(AuthenticateCommand.class, new AuthenticateHandler());
     }
@@ -44,12 +43,35 @@ public class ServiceEndpoint extends CommandDispatcher implements ServiceDomain 
     public void onMessage(Session session, CommandMessage command) {
 
         log.debug("#{} -> {}", session.getId(), command);
-        this.session.set(session);
+        // this.session.set(session);
+
+        ClientSession client = clients.get(session);
 
         try {
-            dispatchCommand(this, clients.get(this.session.get()), command);
+
+            dispatchCommand(this, client, command);
+
+        } catch (ProtocolException e) {
+
+            log.warn("#{} {}", session.getId(), e.getMessage());
+
+            try {
+                client.close(e.getCloseCode());
+            } catch (CommandException closeError) {
+                log.error(closeError.getMessage());
+                onClose(session);
+            }
+
         } catch (CommandException e) {
+
             log.error("#{} {}", session.getId(), e.getMessage());
+
+            try {
+                client.close(ClientCloseCode.SERVER_ERROR);
+            } catch (CommandException closeError) {
+                log.error(closeError.getMessage());
+                onClose(session);
+            }
         }
     }
 

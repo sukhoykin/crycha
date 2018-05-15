@@ -2,6 +2,7 @@ package name.sukhoykin.cryptic.handler;
 
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -10,10 +11,11 @@ import javax.xml.bind.DatatypeConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import name.sukhoykin.cryptic.CipherException;
+import name.sukhoykin.cryptic.ClientCloseCode;
 import name.sukhoykin.cryptic.ClientSession;
 import name.sukhoykin.cryptic.CommandException;
 import name.sukhoykin.cryptic.CommandHandler;
+import name.sukhoykin.cryptic.ProtocolException;
 import name.sukhoykin.cryptic.ServiceDomain;
 import name.sukhoykin.cryptic.command.AuthenticateCommand;
 
@@ -36,17 +38,20 @@ public class AuthenticateHandler implements CommandHandler<AuthenticateCommand> 
 
             byte[] dhPub = DatatypeConverter.parseHexBinary(command.getDh());
             byte[] dsaPub = DatatypeConverter.parseHexBinary(command.getDsa());
+            byte[] signature = DatatypeConverter.parseHexBinary(command.getSignature());
 
-            byte[] signature = signPublicKeys(totp, dhPub, dsaPub);
+            if (!Arrays.equals(signature, signPublicKeys(totp, dhPub, dsaPub))) {
+                throw new ProtocolException(ClientCloseCode.INVALID_SIGNATURE);
+            }
 
             log.debug("{} = {}", command.getSignature(), DatatypeConverter.printHexBinary(signature).toLowerCase());
 
-        } catch (CipherException e) {
+        } catch (CommandException e) {
             throw new CommandException(e);
         }
     }
 
-    public byte[] signPublicKeys(byte[] key, byte[] dhPub, byte[] dsaPub) throws CipherException {
+    public byte[] signPublicKeys(byte[] key, byte[] dhPub, byte[] dsaPub) throws CommandException {
 
         SecretKeySpec secretKeySpec = new SecretKeySpec(key, PUBLIC_KEY_SIGN_ALGO);
 
@@ -61,7 +66,7 @@ public class AuthenticateHandler implements CommandHandler<AuthenticateCommand> 
             return mac.doFinal();
 
         } catch (InvalidKeyException | NoSuchAlgorithmException e) {
-            throw new CipherException(e.getMessage(), e);
+            throw new CommandException(e.getMessage(), e);
         }
     }
 }

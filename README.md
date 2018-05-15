@@ -73,25 +73,8 @@ Skey = HMAC-SHA-256(TOTP, DHpub || DSApub)
 
 * Calculate `TOTP` from `R`.
 * Calculate `Skey` for received client public keys.
-* Verify signatures.
-* If signature is not valid then send **close command**:
-
-```javascript
-{
-  command: 'close',
-  message: 'invalid signature'
-}
-```
-
-* If server have `active session` with this `email` then send **close command** to `active session`:
-
-```javascript
-{
-  command: 'close',
-  message: 'duplicate entry'
-}
-```
-
+* Verify signature. If signature is not valid, close session with code `401`.
+* If server have `active session` with this `email` then close `active session` with code `101`.
 * Generate ECDH key pair `DHpriv` and `DHpub` with Curve25519 curve for key exchange. 
 * Generate ECDSA key pair `DSApriv` and `DSApub` with Curve25519 curve for data signature.
 * Calculate signature `Skey` for server public keys.
