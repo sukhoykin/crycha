@@ -21,6 +21,7 @@ public class IdentifyHandler implements CommandHandler<IdentifyCommand> {
 
     private static final Logger log = LoggerFactory.getLogger(IdentifyHandler.class);
 
+    private final int TOTP_VALIDITY_MINUTES = 5;
     private final String TOTP_ALGORITHM = "HmacMD5";
 
     @Override
@@ -47,7 +48,7 @@ public class IdentifyHandler implements CommandHandler<IdentifyCommand> {
             Mac mac = Mac.getInstance(TOTP_ALGORITHM);
             mac.init(secretKeySpec);
 
-            return mac.doFinal(((System.currentTimeMillis() / 1000 / 60) + "").getBytes());
+            return mac.doFinal(((System.currentTimeMillis() / 1000 / 60 / TOTP_VALIDITY_MINUTES) + "").getBytes());
 
         } catch (InvalidKeyException | NoSuchAlgorithmException e) {
             throw new CommandException(e);

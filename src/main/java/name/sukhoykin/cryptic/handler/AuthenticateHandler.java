@@ -31,24 +31,18 @@ public class AuthenticateHandler implements CommandHandler<AuthenticateCommand> 
 
         IdentifyHandler identifyHandler = service.getCommandHandler(IdentifyHandler.class);
 
-        try {
+        byte[] totp = identifyHandler.calculateTOTP(client.getRandomKey());
+        log.debug("TOTP {}", DatatypeConverter.printHexBinary(totp).toLowerCase());
 
-            byte[] totp = identifyHandler.calculateTOTP(client.getRandomKey());
-            log.debug("TOTP {}", DatatypeConverter.printHexBinary(totp).toLowerCase());
+        byte[] dhPub = DatatypeConverter.parseHexBinary(command.getDh());
+        byte[] dsaPub = DatatypeConverter.parseHexBinary(command.getDsa());
+        byte[] signature = DatatypeConverter.parseHexBinary(command.getSignature());
 
-            byte[] dhPub = DatatypeConverter.parseHexBinary(command.getDh());
-            byte[] dsaPub = DatatypeConverter.parseHexBinary(command.getDsa());
-            byte[] signature = DatatypeConverter.parseHexBinary(command.getSignature());
-
-            if (!Arrays.equals(signature, signPublicKeys(totp, dhPub, dsaPub))) {
-                throw new ProtocolException(ClientCloseCode.INVALID_SIGNATURE);
-            }
-
-            log.debug("{} = {}", command.getSignature(), DatatypeConverter.printHexBinary(signature).toLowerCase());
-
-        } catch (CommandException e) {
-            throw new CommandException(e);
+        if (!Arrays.equals(signature, signPublicKeys(totp, dhPub, dsaPub))) {
+            throw new ProtocolException(ClientCloseCode.INVALID_SIGNATURE);
         }
+
+        log.debug("{} = {}", command.getSignature(), DatatypeConverter.printHexBinary(signature).toLowerCase());
     }
 
     public byte[] signPublicKeys(byte[] key, byte[] dhPub, byte[] dsaPub) throws CommandException {

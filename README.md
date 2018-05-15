@@ -41,10 +41,10 @@ Communication protocol include three security and functionality tiers. Each tier
 **Server**
 
 * Generate secure random `R` and associate with client connection.
-* Calculate a time-based one-time password `TOTP` that valid for 1 minute:
+* Calculate a time-based one-time password `TOTP` that valid for 5 minutes:
 
 ```
-TOTP = HMAC-MD5(R, now() / 60)
+TOTP = HMAC-MD5(R, now() / 60 / 5)
 ```
 
 * Send email with `TOTP` to client `email` address.

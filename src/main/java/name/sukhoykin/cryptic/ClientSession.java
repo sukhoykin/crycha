@@ -3,8 +3,6 @@ package name.sukhoykin.cryptic;
 import java.io.IOException;
 import java.security.SecureRandom;
 
-import javax.websocket.CloseReason;
-import javax.websocket.CloseReason.CloseCode;
 import javax.websocket.EncodeException;
 import javax.websocket.Session;
 
@@ -48,15 +46,6 @@ public class ClientSession {
             }
 
         } catch (IOException | EncodeException e) {
-            throw new CommandException(e);
-        }
-    }
-
-    public void close(CloseCode closeCode) throws CommandException {
-
-        try {
-            session.close(new CloseReason(closeCode, closeCode.toString()));
-        } catch (IOException e) {
             throw new CommandException(e);
         }
     }

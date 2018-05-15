@@ -1,8 +1,11 @@
 package name.sukhoykin.cryptic;
 
+import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import javax.websocket.CloseReason;
+import javax.websocket.CloseReason.CloseCode;
 import javax.websocket.OnClose;
 import javax.websocket.OnError;
 import javax.websocket.OnMessage;
@@ -23,10 +26,7 @@ public class ServiceEndpoint extends CommandDispatcher implements ServiceDomain 
 
     private static final Logger log = LoggerFactory.getLogger(ServiceEndpoint.class);
 
-    // private final ThreadLocal<Session> session = new ThreadLocal<>();
-
     private final ConcurrentMap<Session, ClientSession> clients = new ConcurrentHashMap<>();
-    private final ConcurrentMap<String, ClientSession> authenticatedClients = new ConcurrentHashMap<>();
 
     public ServiceEndpoint() {
         registerCommandHandler(IdentifyCommand.class, new IdentifyHandler());
@@ -43,7 +43,6 @@ public class ServiceEndpoint extends CommandDispatcher implements ServiceDomain 
     public void onMessage(Session session, CommandMessage command) {
 
         log.debug("#{} -> {}", session.getId(), command);
-        // this.session.set(session);
 
         ClientSession client = clients.get(session);
 
@@ -52,38 +51,35 @@ public class ServiceEndpoint extends CommandDispatcher implements ServiceDomain 
             dispatchCommand(this, client, command);
 
         } catch (ProtocolException e) {
-
             log.warn("#{} {}", session.getId(), e.getMessage());
-
-            try {
-                client.close(e.getCloseCode());
-            } catch (CommandException closeError) {
-                log.error(closeError.getMessage());
-                onClose(session);
-            }
+            closeSession(session, e.getCloseCode());
 
         } catch (CommandException e) {
-
             log.error("#{} {}", session.getId(), e.getMessage());
-
-            try {
-                client.close(ClientCloseCode.SERVER_ERROR);
-            } catch (CommandException closeError) {
-                log.error(closeError.getMessage());
-                onClose(session);
-            }
+            closeSession(session, ClientCloseCode.SERVER_ERROR);
         }
+    }
+
+    private void closeSession(Session session, CloseCode closeCode) {
+
+        try {
+            session.close(new CloseReason(closeCode, closeCode.toString()));
+        } catch (IOException e) {
+            log.error("", e);
+            onClose(session);
+        }
+    }
+
+    @OnError
+    public void onError(Session session, Throwable error) {
+        log.error("#{} Error {}", session.getId(), error.getMessage());
+        closeSession(session, ClientCloseCode.SERVER_ERROR);
     }
 
     @OnClose
     public void onClose(Session session) {
         log.debug("#{} Disconnected", session.getId());
         clients.remove(session);
-    }
-
-    @OnError
-    public void onError(Session session, Throwable error) {
-        log.error("#{} {}", session.getId(), error.getMessage());
     }
 
     @Override
