@@ -23,6 +23,10 @@ public class ClientSession {
         new SecureRandom().nextBytes(randomKey);
     }
 
+    Session getSession() {
+        return session;
+    }
+
     public byte[] getRandomKey() {
         return randomKey;
     }

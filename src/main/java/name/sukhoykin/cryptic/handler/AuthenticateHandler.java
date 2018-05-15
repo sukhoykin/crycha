@@ -42,7 +42,7 @@ public class AuthenticateHandler implements CommandHandler<AuthenticateCommand> 
             throw new ProtocolException(ClientCloseCode.INVALID_SIGNATURE);
         }
 
-        log.debug("{} = {}", command.getSignature(), DatatypeConverter.printHexBinary(signature).toLowerCase());
+        service.registerClient(client);
     }
 
     public byte[] signPublicKeys(byte[] key, byte[] dhPub, byte[] dsaPub) throws CommandException {

@@ -21,12 +21,14 @@ import name.sukhoykin.cryptic.command.IdentifyCommand;
 import name.sukhoykin.cryptic.handler.AuthenticateHandler;
 import name.sukhoykin.cryptic.handler.IdentifyHandler;
 
-@ServerEndpoint(value = "/api", encoders = { MessageEncoder.class }, decoders = { MessageDecoder.class })
+@ServerEndpoint(value = "/api", encoders = { MessageEncoder.class }, decoders = {
+        MessageDecoder.class }, configurator = ServiceInitializer.class)
 public class ServiceEndpoint extends CommandDispatcher implements ServiceDomain {
 
     private static final Logger log = LoggerFactory.getLogger(ServiceEndpoint.class);
 
-    private final ConcurrentMap<Session, ClientSession> clients = new ConcurrentHashMap<>();
+    private final ConcurrentMap<Session, ClientSession> sessions = new ConcurrentHashMap<>();
+    private final ConcurrentMap<String, ClientSession> clients = new ConcurrentHashMap<>();
 
     public ServiceEndpoint() {
         registerCommandHandler(IdentifyCommand.class, new IdentifyHandler());
@@ -36,7 +38,7 @@ public class ServiceEndpoint extends CommandDispatcher implements ServiceDomain 
     @OnOpen
     public void onOpen(Session session) {
         log.debug("#{} Connected", session.getId());
-        clients.put(session, new ClientSession(session));
+        sessions.put(session, new ClientSession(session));
     }
 
     @OnMessage
@@ -44,7 +46,7 @@ public class ServiceEndpoint extends CommandDispatcher implements ServiceDomain 
 
         log.debug("#{} -> {}", session.getId(), command);
 
-        ClientSession client = clients.get(session);
+        ClientSession client = sessions.get(session);
 
         try {
 
@@ -52,44 +54,52 @@ public class ServiceEndpoint extends CommandDispatcher implements ServiceDomain 
 
         } catch (ProtocolException e) {
             log.warn("#{} {}", session.getId(), e.getMessage());
-            closeSession(session, e.getCloseCode());
+            closeClient(client, e.getCloseCode());
 
         } catch (CommandException e) {
             log.error("#{} {}", session.getId(), e.getMessage());
-            closeSession(session, ClientCloseCode.SERVER_ERROR);
+            closeClient(client, ClientCloseCode.SERVER_ERROR);
         }
     }
 
-    private void closeSession(Session session, CloseCode closeCode) {
+    private void closeClient(ClientSession client, CloseCode closeCode) {
 
         try {
-            session.close(new CloseReason(closeCode, closeCode.toString()));
+            client.getSession().close(new CloseReason(closeCode, closeCode.toString()));
         } catch (IOException e) {
             log.error("", e);
-            onClose(session);
+            onClose(client.getSession());
         }
     }
 
     @OnError
     public void onError(Session session, Throwable error) {
-        log.error("#{} Error {}", session.getId(), error.getMessage());
-        closeSession(session, ClientCloseCode.SERVER_ERROR);
+        log.error("#{} Error", session.getId(), error);
+        closeClient(sessions.get(session), ClientCloseCode.SERVER_ERROR);
     }
 
     @OnClose
     public void onClose(Session session) {
+
         log.debug("#{} Disconnected", session.getId());
-        clients.remove(session);
+
+        ClientSession client = sessions.remove(session);
+        clients.remove(client.getClientId(), client);
     }
 
     @Override
     public void registerClient(ClientSession client) {
 
+        client = clients.put(client.getClientId(), client);
+
+        if (client != null) {
+            closeClient(client, ClientCloseCode.DUPLICATE_AUTHENTICATION);
+        }
     }
 
     @Override
     public ClientSession lookupClient(String clientId) {
-        return null;
+        return clients.get(clientId);
     }
 
     @Override
