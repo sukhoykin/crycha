@@ -19,8 +19,6 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import javax.xml.bind.DatatypeConverter;
 
-import org.bouncycastle.asn1.x9.X9ECParameters;
-import org.bouncycastle.crypto.ec.CustomNamedCurves;
 import org.bouncycastle.jce.ECNamedCurveTable;
 import org.bouncycastle.jce.interfaces.ECPublicKey;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -48,8 +46,6 @@ public class AuthenticateHandler implements CommandHandler<AuthenticateCommand> 
     private final String SIGNATURE_ALGO = "ECDSA";
     private final String SHARED_SECRET_HASH_ALGO = "SHA-256";
 
-    // private final ECParameterSpec CURVE_25519_PARAMETER_SPEC = new
-    // Curve25519ParameterSpec();
     private final ECParameterSpec CURVE_25519_PARAMETER_SPEC = ECNamedCurveTable.getParameterSpec("curve25519");
 
     @Override
@@ -187,15 +183,6 @@ public class AuthenticateHandler implements CommandHandler<AuthenticateCommand> 
 
         } catch (NoSuchAlgorithmException e) {
             throw new CommandException(e);
-        }
-    }
-
-    private static class Curve25519ParameterSpec extends ECParameterSpec {
-
-        private static final X9ECParameters ecParams = CustomNamedCurves.getByName("curve25519");
-
-        public Curve25519ParameterSpec() {
-            super(ecParams.getCurve(), ecParams.getG(), ecParams.getN(), ecParams.getH(), ecParams.getSeed());
         }
     }
 }

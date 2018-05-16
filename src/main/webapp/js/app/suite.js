@@ -37,8 +37,6 @@ function CipherSuite() {
 
   var signPublicKeys = function(dhPub, dsaPub) {
 
-    console.log(totp);
-
     var mac = hashjs.hmac(hashjs.sha256, totp, 'hex');
 
     mac.update(dhPub.encodeCompressed());
