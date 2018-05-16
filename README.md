@@ -94,8 +94,7 @@ Skey = HMAC-SHA-256(TOTP, DHpub || DSApub)
 **Client**
 
 * Calculate `Skey` for received server public keys.
-* Verify signatures.
-* If signature is not valid then send **close command**.
+* Verify signature. If signature is not valid, close session with code `401`.
 
 ### Client-Server TLS
 
