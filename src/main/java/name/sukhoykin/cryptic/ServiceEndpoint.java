@@ -18,6 +18,8 @@ import org.slf4j.LoggerFactory;
 
 import name.sukhoykin.cryptic.command.AuthenticateCommand;
 import name.sukhoykin.cryptic.command.IdentifyCommand;
+import name.sukhoykin.cryptic.exception.CommandException;
+import name.sukhoykin.cryptic.exception.ProtocolException;
 import name.sukhoykin.cryptic.handler.AuthenticateHandler;
 import name.sukhoykin.cryptic.handler.IdentifyHandler;
 

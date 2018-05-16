@@ -3,6 +3,8 @@ package name.sukhoykin.cryptic;
 import java.util.HashMap;
 import java.util.Map;
 
+import name.sukhoykin.cryptic.exception.CommandException;
+
 public class CommandDispatcher {
 
     private final Map<Class<?>, CommandHandler<?>> handlers = new HashMap<>();

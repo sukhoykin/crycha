@@ -29,22 +29,24 @@ import org.bouncycastle.util.encoders.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import name.sukhoykin.cryptic.ClientCipher;
 import name.sukhoykin.cryptic.ClientCloseCode;
 import name.sukhoykin.cryptic.ClientSession;
-import name.sukhoykin.cryptic.CommandException;
 import name.sukhoykin.cryptic.CommandHandler;
-import name.sukhoykin.cryptic.ProtocolException;
 import name.sukhoykin.cryptic.ServiceDomain;
 import name.sukhoykin.cryptic.command.AuthenticateCommand;
+import name.sukhoykin.cryptic.exception.CommandException;
+import name.sukhoykin.cryptic.exception.CryptoException;
+import name.sukhoykin.cryptic.exception.ProtocolException;
 
 public class AuthenticateHandler implements CommandHandler<AuthenticateCommand> {
 
     private static final Logger log = LoggerFactory.getLogger(AuthenticateHandler.class);
 
-    private final String PUBLIC_KEY_SIGN_ALGO = "HmacSHA256";
-    private final String KEY_EXCHANGE_ALGO = "ECDH";
-    private final String SIGNATURE_ALGO = "ECDSA";
-    private final String SHARED_SECRET_HASH_ALGO = "SHA-256";
+    private final String PUBLIC_KEY_SIGN_ALGORITHM = "HmacSHA256";
+    private final String KEY_EXCHANGE_ALGORITHM = "ECDH";
+    private final String SIGNATURE_ALGORITHM = "ECDSA";
+    private final String SHARED_SECRET_HASH_ALGORITHM = "SHA-256";
 
     private final ECParameterSpec CURVE_25519_PARAMETER_SPEC = ECNamedCurveTable.getParameterSpec("curve25519");
 
@@ -68,14 +70,14 @@ public class AuthenticateHandler implements CommandHandler<AuthenticateCommand> 
             throw new ProtocolException(ClientCloseCode.INVALID_SIGNATURE);
         }
 
-        PublicKey dhPubKey = decodePublicKey(KEY_EXCHANGE_ALGO, dhPub);
-        PublicKey dsaPubKey = decodePublicKey(SIGNATURE_ALGO, dsaPub);
+        PublicKey dhPubKey = decodePublicKey(KEY_EXCHANGE_ALGORITHM, dhPub);
+        PublicKey dsaPubKey = decodePublicKey(SIGNATURE_ALGORITHM, dsaPub);
 
         /**
          * Generate keys and derive shared secret.
          */
-        KeyPair dhKeyPair = generateKeyPair(KEY_EXCHANGE_ALGO);
-        KeyPair dsaKeyPair = generateKeyPair(SIGNATURE_ALGO);
+        KeyPair dhKeyPair = generateKeyPair(KEY_EXCHANGE_ALGORITHM);
+        KeyPair dsaKeyPair = generateKeyPair(SIGNATURE_ALGORITHM);
 
         byte[] sharedSecret = deriveSharedSecret(dhKeyPair.getPrivate(), dhPubKey);
         sharedSecret = hashSharedSecret(sharedSecret, dhKeyPair.getPublic(), dhPubKey);
@@ -96,16 +98,24 @@ public class AuthenticateHandler implements CommandHandler<AuthenticateCommand> 
         authenticate.setSignature(Hex.toHexString(signature));
 
         client.sendCommand(authenticate);
+
+        /**
+         * Set client cipher suite and register.
+         */
+        client.setServerDSAKey(dsaPubKey);
+        client.setClientDSAKey(dsaKeyPair.getPrivate());
+        client.setCipher(new ClientCipher(sharedSecret, totp));
+
         service.registerClient(client);
     }
 
-    private byte[] signPublicKeys(byte[] key, byte[] dhPub, byte[] dsaPub) throws CommandException {
+    private byte[] signPublicKeys(byte[] key, byte[] dhPub, byte[] dsaPub) throws CryptoException {
 
-        SecretKeySpec secretKeySpec = new SecretKeySpec(key, PUBLIC_KEY_SIGN_ALGO);
+        SecretKeySpec secretKeySpec = new SecretKeySpec(key, PUBLIC_KEY_SIGN_ALGORITHM);
 
         try {
 
-            Mac mac = Mac.getInstance(PUBLIC_KEY_SIGN_ALGO);
+            Mac mac = Mac.getInstance(PUBLIC_KEY_SIGN_ALGORITHM);
             mac.init(secretKeySpec);
 
             mac.update(dhPub);
@@ -114,11 +124,11 @@ public class AuthenticateHandler implements CommandHandler<AuthenticateCommand> 
             return mac.doFinal();
 
         } catch (InvalidKeyException | NoSuchAlgorithmException e) {
-            throw new CommandException(e.getMessage(), e);
+            throw new CryptoException(e.getMessage(), e);
         }
     }
 
-    private PublicKey decodePublicKey(String algorithm, byte[] key) throws CommandException {
+    private PublicKey decodePublicKey(String algorithm, byte[] key) throws CryptoException {
 
         try {
 
@@ -130,11 +140,11 @@ public class AuthenticateHandler implements CommandHandler<AuthenticateCommand> 
             return kf.generatePublic(keySpec);
 
         } catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidKeySpecException e) {
-            throw new CommandException(e);
+            throw new CryptoException(e);
         }
     }
 
-    private KeyPair generateKeyPair(String algorithm) throws CommandException {
+    private KeyPair generateKeyPair(String algorithm) throws CryptoException {
 
         try {
 
@@ -144,15 +154,15 @@ public class AuthenticateHandler implements CommandHandler<AuthenticateCommand> 
             return g.generateKeyPair();
 
         } catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidAlgorithmParameterException e) {
-            throw new CommandException(e);
+            throw new CryptoException(e);
         }
     }
 
-    private byte[] deriveSharedSecret(PrivateKey serverPrivateKey, PublicKey clientPublicKey) throws CommandException {
+    private byte[] deriveSharedSecret(PrivateKey serverPrivateKey, PublicKey clientPublicKey) throws CryptoException {
 
         try {
 
-            KeyAgreement ka = KeyAgreement.getInstance(KEY_EXCHANGE_ALGO, BouncyCastleProvider.PROVIDER_NAME);
+            KeyAgreement ka = KeyAgreement.getInstance(KEY_EXCHANGE_ALGORITHM, BouncyCastleProvider.PROVIDER_NAME);
 
             ka.init(serverPrivateKey);
             ka.doPhase(clientPublicKey, true);
@@ -160,7 +170,7 @@ public class AuthenticateHandler implements CommandHandler<AuthenticateCommand> 
             return ka.generateSecret();
 
         } catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidKeyException e) {
-            throw new CommandException(e);
+            throw new CryptoException(e);
         }
     }
 
@@ -169,11 +179,11 @@ public class AuthenticateHandler implements CommandHandler<AuthenticateCommand> 
     }
 
     private byte[] hashSharedSecret(byte[] sharedSecret, PublicKey serverPublicKey, PublicKey clientPublicKey)
-            throws CommandException {
+            throws CryptoException {
 
         try {
 
-            MessageDigest md = MessageDigest.getInstance(SHARED_SECRET_HASH_ALGO);
+            MessageDigest md = MessageDigest.getInstance(SHARED_SECRET_HASH_ALGORITHM);
 
             md.update(sharedSecret);
             md.update(encodePublicKey(serverPublicKey, false));
@@ -182,7 +192,7 @@ public class AuthenticateHandler implements CommandHandler<AuthenticateCommand> 
             return md.digest();
 
         } catch (NoSuchAlgorithmException e) {
-            throw new CommandException(e);
+            throw new CryptoException(e);
         }
     }
 }

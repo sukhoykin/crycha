@@ -1,4 +1,4 @@
-package name.sukhoykin.cryptic;
+package name.sukhoykin.cryptic.exception;
 
 public class CommandException extends Exception {
 
