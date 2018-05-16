@@ -106,17 +106,18 @@ Skey = HMAC-SHA-256(TOTP, DHpub || DSApub)
 D = DHpriv.own x DHpub.remote
 ```
 
-* Calculate shared key `K` using shared secret `D`, server public `DHpub` key and client `DHpub` public key:
+* Calculate shared key `K` using shared secret `D`, server public `DHpub.server` and client public `DHpub.client` keys:
 
 ```
 K = SHA-256(D || DHpub.server || DHpub.client)
 ```
 
 * Create separate AES cipher engines in CBC-mode for `send` end `receive` data using shared key `K` and `TOTP` as initialization vector `IV`.
+* All other commands should be sent encrypted as **data command** payload.
 
 **Send data**
 
-* Create command payload `data`.
+* Create command and encrypt `data` payload.
 * Calculate signature `Sdata` for `data` using `DSApriv`:
 
 ```
@@ -141,7 +142,8 @@ Sdata = DSApriv.Signature(data)
 DSApub.Verify(data, Sdata)
 ```
 
-* If signature is not valid then send **close command**.
+* If signature is not valid then close session with code `401`.
+* Decrypt `data` as command and process it.
 
 ### Authorization
 
