@@ -119,10 +119,22 @@ function CrypticClient(url) {
     }
   }
 
+  var sendCommand = function(command) {
+
+    command = JSON.stringify(command);
+
+    sendMessage({
+      command : 'data',
+      payload : cipher.encrypt(command),
+      signature : cipher.sign(command)
+    });
+  }
+
   self.onReady = null;
   self.onDebug = null;
   self.onAuthenticate = null;
 
   self.identify = identify;
   self.authenticate = authenticate;
+  self.sendCommand = sendCommand;
 }

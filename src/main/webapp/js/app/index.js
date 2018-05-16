@@ -19,3 +19,7 @@ client.onDebug = function(data) {
     console.log(e);
   }
 }
+
+client.onAuthenticate = function() {
+
+}

@@ -14,6 +14,9 @@ function CipherSuite() {
   var dsa = curve.genKeyPair();
 
   var totp;
+  var serverDsa;
+  var aesEncrypt;
+  var aesDecrypt;
 
   var setTOTP = function(key) {
     totp = key;
@@ -55,8 +58,33 @@ function CipherSuite() {
     sha256.update(dh.getPublic().encode());
 
     var sharedSecret = sha256.digest();
+    var iv = aesjs.utils.utf8.toBytes(totp);
 
     console.log('sharedSecret: ' + aesjs.utils.hex.fromBytes(sharedSecret));
+
+    serverDsa = dhDsa;
+    aesEncrypt = new aesjs.ModeOfOperation.cbc(sharedSecret, iv);
+    aesDecrypt = new aesjs.ModeOfOperation.cbc(sharedSecret, iv);
+  }
+
+  var encrypt = function(command) {
+
+    command = aesjs.utils.utf8.toBytes(command);
+    command = aesjs.padding.pkcs7.pad(command);
+    command = aesEncrypt.encrypt(command);
+    command = aesjs.utils.hex.fromBytes(command);
+
+    return command;
+  }
+
+  var decrypt = function(command) {
+
+    command = aesjs.utils.utf8.toBytes(command);
+    command = aesDecrypt.decrypt(command);
+    command = aesjs.padding.pkcs7.strip(command);
+    command = aesjs.utils.hex.fromBytes(command);
+
+    return command;
   }
 
   self.setTOTP = setTOTP;
@@ -66,6 +94,8 @@ function CipherSuite() {
   self.decodePublicKey = decodePublicKey;
   self.signPublicKeys = signPublicKeys;
   self.setServerKeys = setServerKeys;
+  self.encrypt = encrypt;
+  self.decrypt = decrypt;
 }
 
 /**
