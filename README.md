@@ -117,11 +117,11 @@ K = SHA-256(D || DHpub.server || DHpub.client)
 
 **Send data**
 
-* Create command and encrypt `data` payload.
-* Calculate signature `Sdata` for `data` using `DSApriv`:
+* Create command and encrypt it as `payload`.
+* Calculate signature `Spayload` for `payload` using `DSApriv`:
 
 ```
-Sdata = DSApriv.Signature(data)
+Spayload = DSApriv.Signature(payload)
 ```
 
 * Send **data command**:
@@ -129,21 +129,21 @@ Sdata = DSApriv.Signature(data)
 ```javascript
 {
   command: 'data',
-  data: '{data}',
-  signature: '{Sdata}'
+  payload: '{payload}',
+  signature: '{Spayload}'
 }
 ```
 
 **Receive data**
 
-* Verify signature `Sdata` for `data` using remote `DSApub`:
+* Verify signature `Spayload` for `payload` using remote `DSApub`:
 
 ```
-DSApub.Verify(data, Sdata)
+DSApub.Verify(payload, Spayload)
 ```
 
 * If signature is not valid then close session with code `401`.
-* Decrypt `data` as command and process it.
+* Decrypt `payload` as command and process it.
 
 ### Authorization
 
