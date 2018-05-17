@@ -52,6 +52,14 @@ function CrypticClient(url) {
       case 'authenticate':
         authenticateCommand(command);
         break;
+
+      case 'data':
+        console.log(cipher.decrypt(command.payload));
+        break;
+
+      case 'authorize':
+        authorizeCommand(command);
+        break;
       }
 
     } catch (e) {
@@ -119,15 +127,28 @@ function CrypticClient(url) {
     }
   }
 
-  var sendCommand = function(command) {
+  var sendDataCommand = function(command) {
 
     command = JSON.stringify(command);
 
     sendMessage({
       command : 'data',
       payload : cipher.encrypt(command),
-      signature : cipher.sign(command)
+      signature : 0
+    // cipher.sign(command)
     });
+  }
+
+  var authorize = function(clientId) {
+
+    sendDataCommand({
+      command : 'authorize',
+      email : clientId
+    });
+  }
+
+  var authorizeCommand = function(command) {
+
   }
 
   self.onReady = null;
@@ -136,5 +157,5 @@ function CrypticClient(url) {
 
   self.identify = identify;
   self.authenticate = authenticate;
-  self.sendCommand = sendCommand;
+  self.authorize = authorize;
 }

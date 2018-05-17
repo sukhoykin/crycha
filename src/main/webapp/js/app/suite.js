@@ -58,9 +58,10 @@ function CipherSuite() {
     sha256.update(dh.getPublic().encode());
 
     var sharedSecret = sha256.digest();
-    var iv = aesjs.utils.utf8.toBytes(totp);
+    var iv = aesjs.utils.hex.toBytes(totp);
 
     console.log('sharedSecret: ' + aesjs.utils.hex.fromBytes(sharedSecret));
+    console.log('iv: ' + aesjs.utils.hex.fromBytes(iv));
 
     serverDsa = dhDsa;
     aesEncrypt = new aesjs.ModeOfOperation.cbc(sharedSecret, iv);
@@ -69,20 +70,25 @@ function CipherSuite() {
 
   var encrypt = function(command) {
 
+    console.log(command);
     command = aesjs.utils.utf8.toBytes(command);
+    console.log(command);
     command = aesjs.padding.pkcs7.pad(command);
+    console.log(command);
     command = aesEncrypt.encrypt(command);
+    console.log(command);
     command = aesjs.utils.hex.fromBytes(command);
+    console.log(command);
 
     return command;
   }
 
   var decrypt = function(command) {
 
-    command = aesjs.utils.utf8.toBytes(command);
+    command = aesjs.utils.hex.toBytes(command);
     command = aesDecrypt.decrypt(command);
     command = aesjs.padding.pkcs7.strip(command);
-    command = aesjs.utils.hex.fromBytes(command);
+    command = aesjs.utils.utf8.fromBytes(command);
 
     return command;
   }

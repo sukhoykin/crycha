@@ -65,10 +65,10 @@ public class ClientCipher {
 
         try {
 
-            byte[] output = encrypt.doFinal(input);
+            byte[] output = decrypt.doFinal(input);
 
             System.arraycopy(input, input.length - 16, decryptIV, 0, 16);
-            encrypt.init(Cipher.DECRYPT_MODE, secretKey, new IvParameterSpec(decryptIV));
+            decrypt.init(Cipher.DECRYPT_MODE, secretKey, new IvParameterSpec(decryptIV));
 
             return output;
 

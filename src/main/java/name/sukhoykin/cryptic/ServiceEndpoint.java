@@ -17,10 +17,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import name.sukhoykin.cryptic.command.AuthenticateCommand;
+import name.sukhoykin.cryptic.command.DataCommand;
 import name.sukhoykin.cryptic.command.IdentifyCommand;
 import name.sukhoykin.cryptic.exception.CommandException;
 import name.sukhoykin.cryptic.exception.ProtocolException;
 import name.sukhoykin.cryptic.handler.AuthenticateHandler;
+import name.sukhoykin.cryptic.handler.DataHandler;
 import name.sukhoykin.cryptic.handler.IdentifyHandler;
 
 @ServerEndpoint(value = "/api", encoders = { MessageEncoder.class }, decoders = {
@@ -35,6 +37,7 @@ public class ServiceEndpoint extends CommandDispatcher implements ServiceDomain 
     public ServiceEndpoint() {
         registerCommandHandler(IdentifyCommand.class, new IdentifyHandler());
         registerCommandHandler(AuthenticateCommand.class, new AuthenticateHandler());
+        registerCommandHandler(DataCommand.class, new DataHandler());
     }
 
     @OnOpen

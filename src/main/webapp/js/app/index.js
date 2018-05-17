@@ -22,4 +22,10 @@ client.onDebug = function(data) {
 
 client.onAuthenticate = function() {
 
+  try {
+    client.authorize('b@example.com');
+    client.authorize('c@example.com');
+  } catch (e) {
+    console.log(e);
+  }
 }

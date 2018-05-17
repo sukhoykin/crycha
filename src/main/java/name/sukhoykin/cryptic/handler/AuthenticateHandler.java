@@ -83,6 +83,7 @@ public class AuthenticateHandler implements CommandHandler<AuthenticateCommand> 
         sharedSecret = hashSharedSecret(sharedSecret, dhKeyPair.getPublic(), dhPubKey);
 
         log.debug("sharedSecret: {}", Hex.toHexString(sharedSecret));
+        log.debug("iv: {}", Hex.toHexString(totp));
 
         /**
          * Send server public keys.
