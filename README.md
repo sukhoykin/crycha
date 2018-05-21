@@ -113,28 +113,27 @@ K = SHA-256(D || DHpub.server || DHpub.client)
 ```
 
 * Create separate AES cipher engines in CBC-mode for `send` end `receive` data using shared key `K` and `TOTP` as initialization vector `IV`.
-* All other commands should be sent encrypted as **data command** payload.
+* All other commands should be sent encrypted as **envelope command** payload.
 
-**Send data**
+**Send TLS-envelope**
 
-* Create command and encrypt it as `payload`.
+* Create command and encrypt it as `payload` using `send` cipher.
 * Calculate signature `Spayload` for `payload` using `DSApriv`:
 
 ```
 Spayload = DSApriv.Signature(payload)
 ```
-
-* Send **data command**:
+* Send **envelope command**:
 
 ```javascript
 {
-  command: 'data',
+  command: 'envelope',
   payload: '{payload}',
   signature: '{Spayload}'
 }
 ```
 
-**Receive data**
+**Receive TLS-envelope**
 
 * Verify signature `Spayload` for `payload` using remote `DSApub`:
 
@@ -143,7 +142,7 @@ DSApub.Verify(payload, Spayload)
 ```
 
 * If signature is not valid then close session with code `401`.
-* Decrypt `payload` as command and process it.
+* Decrypt `payload` using `receive` cipher and process command.
 
 ### Authorization
 

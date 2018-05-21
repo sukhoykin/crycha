@@ -11,6 +11,7 @@ import javax.websocket.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import name.sukhoykin.cryptic.command.EnvelopeCommand;
 import name.sukhoykin.cryptic.exception.CommandException;
 
 public class ClientSession {
@@ -22,8 +23,8 @@ public class ClientSession {
 
     private String clientId;
 
-    private PublicKey serverDsaKey;
-    private PrivateKey clientDsaKey;
+    private PublicKey clientDsaKey;
+    private PrivateKey serverDsaKey;
     private ClientCipher cipher;
 
     public ClientSession(Session session) {
@@ -47,19 +48,19 @@ public class ClientSession {
         return clientId;
     }
 
-    public void setServerDSAKey(PublicKey serverDsaKey) {
+    public void setServerDSAKey(PrivateKey serverDsaKey) {
         this.serverDsaKey = serverDsaKey;
     }
 
-    public PublicKey getServerDsaKey() {
+    public PrivateKey getServerDsaKey() {
         return serverDsaKey;
     }
 
-    public void setClientDSAKey(PrivateKey clientDsaKey) {
+    public void setClientDSAKey(PublicKey clientDsaKey) {
         this.clientDsaKey = clientDsaKey;
     }
 
-    public PrivateKey getClientDSAKey() {
+    public PublicKey getClientDSAKey() {
         return clientDsaKey;
     }
 
@@ -72,6 +73,14 @@ public class ClientSession {
     }
 
     public void sendCommand(CommandMessage command) throws CommandException {
+
+        if (serverDsaKey != null && cipher != null) {
+
+            String payload = command.toString();
+
+            EnvelopeCommand data = new EnvelopeCommand();
+
+        }
 
         try {
 

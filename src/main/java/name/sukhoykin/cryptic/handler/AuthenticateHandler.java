@@ -101,10 +101,10 @@ public class AuthenticateHandler implements CommandHandler<AuthenticateCommand> 
         client.sendCommand(authenticate);
 
         /**
-         * Set client cipher suite and register.
+         * Enable TLS.
          */
-        client.setServerDSAKey(dsaPubKey);
-        client.setClientDSAKey(dsaKeyPair.getPrivate());
+        client.setServerDSAKey(dsaKeyPair.getPrivate());
+        client.setClientDSAKey(dsaPubKey);
         client.setCipher(new ClientCipher(sharedSecret, totp));
 
         service.registerClient(client);

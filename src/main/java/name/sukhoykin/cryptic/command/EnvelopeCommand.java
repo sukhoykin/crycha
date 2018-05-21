@@ -2,14 +2,14 @@ package name.sukhoykin.cryptic.command;
 
 import name.sukhoykin.cryptic.CommandMessage;
 
-public class DataCommand extends CommandMessage {
+public class EnvelopeCommand extends CommandMessage {
 
-    public static final String NAME = "data";
+    public static final String NAME = "envelope";
 
     private String payload;
     private String signature;
 
-    public DataCommand() {
+    public EnvelopeCommand() {
         super(NAME);
     }
 

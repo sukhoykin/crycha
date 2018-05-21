@@ -77,6 +77,7 @@ function CipherSuite() {
     console.log(command);
     command = aesEncrypt.encrypt(command);
     console.log(command);
+    console.log(btoa(command));
     command = aesjs.utils.hex.fromBytes(command);
     console.log(command);
 
