@@ -1,4 +1,4 @@
-package name.sukhoykin.cryptic.handler;
+package name.sukhoykin.cryptic.command;
 
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -34,7 +34,6 @@ import name.sukhoykin.cryptic.ClientCloseCode;
 import name.sukhoykin.cryptic.ClientSession;
 import name.sukhoykin.cryptic.CommandHandler;
 import name.sukhoykin.cryptic.ServiceDomain;
-import name.sukhoykin.cryptic.command.AuthenticateCommand;
 import name.sukhoykin.cryptic.exception.CommandException;
 import name.sukhoykin.cryptic.exception.CryptoException;
 import name.sukhoykin.cryptic.exception.ProtocolException;

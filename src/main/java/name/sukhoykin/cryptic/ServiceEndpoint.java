@@ -17,13 +17,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import name.sukhoykin.cryptic.command.AuthenticateCommand;
+import name.sukhoykin.cryptic.command.AuthenticateHandler;
 import name.sukhoykin.cryptic.command.EnvelopeCommand;
+import name.sukhoykin.cryptic.command.EnvelopeHandler;
 import name.sukhoykin.cryptic.command.IdentifyCommand;
+import name.sukhoykin.cryptic.command.IdentifyHandler;
 import name.sukhoykin.cryptic.exception.CommandException;
 import name.sukhoykin.cryptic.exception.ProtocolException;
-import name.sukhoykin.cryptic.handler.AuthenticateHandler;
-import name.sukhoykin.cryptic.handler.EnvelopeHandler;
-import name.sukhoykin.cryptic.handler.IdentifyHandler;
 
 @ServerEndpoint(value = "/api", encoders = { MessageEncoder.class }, decoders = {
         MessageDecoder.class }, configurator = ServiceInitializer.class)

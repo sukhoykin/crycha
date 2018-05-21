@@ -1,4 +1,4 @@
-package name.sukhoykin.cryptic.handler;
+package name.sukhoykin.cryptic.command;
 
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -13,8 +13,6 @@ import org.slf4j.LoggerFactory;
 import name.sukhoykin.cryptic.ClientSession;
 import name.sukhoykin.cryptic.CommandHandler;
 import name.sukhoykin.cryptic.ServiceDomain;
-import name.sukhoykin.cryptic.command.DebugCommand;
-import name.sukhoykin.cryptic.command.IdentifyCommand;
 import name.sukhoykin.cryptic.exception.CommandException;
 
 public class IdentifyHandler implements CommandHandler<IdentifyCommand> {

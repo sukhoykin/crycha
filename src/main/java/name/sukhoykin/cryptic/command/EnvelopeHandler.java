@@ -1,4 +1,4 @@
-package name.sukhoykin.cryptic.handler;
+package name.sukhoykin.cryptic.command;
 
 import java.util.Arrays;
 
@@ -10,8 +10,6 @@ import name.sukhoykin.cryptic.ClientCipher;
 import name.sukhoykin.cryptic.ClientSession;
 import name.sukhoykin.cryptic.CommandHandler;
 import name.sukhoykin.cryptic.ServiceDomain;
-import name.sukhoykin.cryptic.command.AuthorizeCommand;
-import name.sukhoykin.cryptic.command.EnvelopeCommand;
 import name.sukhoykin.cryptic.exception.CommandException;
 
 public class EnvelopeHandler implements CommandHandler<EnvelopeCommand> {
