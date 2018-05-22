@@ -12,9 +12,9 @@ bower install
 grunt
 ```
 
-## Protocol specification
+# Protocol specification
 
-### Overview
+## Overview
 
 Communication protocol include three security and functionality tiers. Each tier has own TLS-encryption and nested in previous:
 
@@ -22,7 +22,7 @@ Communication protocol include three security and functionality tiers. Each tier
 * Authorization and delivery protocol encrypted with hybrid client-server cipher suite (ECDHE-ECDSA-AES). 
 * Messaging protocol encrypted with hybrid client-client cipher suite (ECDHE-EdDSA-AES). 
 
-### Authentication
+## Authentication
 
 **Client**
 
@@ -145,7 +145,7 @@ DSApub.Verify(payload, Spayload)
 * If signature is not valid then close session with code `401`.
 * Decrypt `payload` using `decrypt` cipher and process command.
 
-### Authorization
+## Authorization
 
 **Client**
 
@@ -205,7 +205,7 @@ IV = truncate(DSApriv.own x DSApub.remote)
 
 * Create separate `AES` cipher engines in `CBC` mode with `PKCS7` padding for `encrypt` end `decrypt` messages using shared secret `K` and initialization vector `IV`.
 
-### Prohibition
+## Prohibition
 
 **Client**
 
@@ -231,6 +231,31 @@ IV = truncate(DSApriv.own x DSApub.remote)
 
 * Remove originator and recipient from authorization table.
 
-### Delivery
+## Messaging
 
-### Messaging
+**Client**
+
+* Encrypt `message` data with `encrypt` cipher and calculate signature `Smessage`.
+* Send **message command** with recipient `email` address, encrypted message and signature:
+
+```javascript
+{
+  command: 'message',
+  email: '{email}',
+  message: '{message}',
+  signature: '{Smessage}'
+}
+```
+
+**Server**
+
+* If recipient authenticated and authorized route him **message command** with originator `email`:
+
+```javascript
+{
+  command: 'message',
+  email: '{email}',
+  message: '{message}',
+  signature: '{Smessage}'
+}
+```
