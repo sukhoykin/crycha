@@ -100,29 +100,30 @@ Skey = HMAC-SHA-256(TOTP, DHpub || DSApub)
 
 **Client and server**
 
-* Derive shared secret `D` using own private `DHpriv` key and remote public `DHpub` key:
+* Derive key `D` using own private `DHpriv` key and remote public `DHpub` key:
 
 ```
 D = DHpriv.own x DHpub.remote
 ```
 
-* Calculate shared key `K` using shared secret `D`, server public `DHpub.server` and client public `DHpub.client` keys:
+* Calculate shared secret `K` hashing derived key `D`, server public `DHpub.server` and client public `DHpub.client` keys:
 
 ```
 K = SHA-256(D || DHpub.server || DHpub.client)
 ```
 
-* Create separate AES cipher engines in CBC-mode for `send` end `receive` data using shared key `K` and `TOTP` as initialization vector `IV`.
-* All other commands should be sent encrypted as **envelope command** payload.
+* Create separate `AES` cipher engines in `CBC` mode with `PKCS7` padding for `encrypt` end `decrypt` data using shared secret `K` and `TOTP` as initialization vector `IV`.
+* All other commands should be sent encrypted as **envelope command** `payload`.
 
 **Send TLS-envelope**
 
-* Create command and encrypt it as `payload` using `send` cipher.
+* Create command and encrypt it as `payload` using `encrypt` cipher.
 * Calculate signature `Spayload` for `payload` using `DSApriv`:
 
 ```
 Spayload = DSApriv.Signature(payload)
 ```
+
 * Send **envelope command**:
 
 ```javascript
@@ -142,13 +143,13 @@ DSApub.Verify(payload, Spayload)
 ```
 
 * If signature is not valid then close session with code `401`.
-* Decrypt `payload` using `receive` cipher and process command.
+* Decrypt `payload` using `decrypt` cipher and process command.
 
 ### Authorization
 
 **Client**
 
-* Send **authorize command** with recipient `email` address:
+* To initiate authorization send **authorize command** with recipient `email` address:
 
 ```javascript
 {
@@ -159,9 +160,76 @@ DSApub.Verify(payload, Spayload)
 
 **Server**
 
-* Check recipient authenticated on server.
+* If recipient authenticated on server send him **authorize command** with originator `email` and keys:
+
+```javascript
+{
+  command: 'authorize',
+  email: '{email}',
+  dh: '{DHpub}',
+  dsa: '{DSApub}'
+}
+```
+
+**Client**
+
+* Receive **authorize command** with originator `email` address and keys.
+* To accept authorization send **authorize command** with originator `email`.
+
+**Server**
+
+* Send **authorize command** with receiver `email` and keys to originator.
+* Add originator and receiver to authorization table.
 
 ### Client-Client TLS
+
+**Both clients**
+
+* Derive key `D` using own private `DHpriv` key and remote public `DHpub` key:
+
+```
+D = DHpriv.own x DHpub.remote
+```
+
+* Calculate shared secret `K` hashing derived key `D`, authorization originator public `DHpub.origin` and authorization recipient public `DHpub.recipient` keys:
+
+```
+K = SHA-256(D || DHpub.origin || DHpub.recipient)
+```
+
+* Derive initialization vector `IV` using own private `DSApriv` key and remote public `DSApub` key:
+
+```
+IV = truncate(DSApriv.own x DSApub.remote)
+```
+
+* Create separate `AES` cipher engines in `CBC` mode with `PKCS7` padding for `encrypt` end `decrypt` messages using shared secret `K` and initialization vector `IV`.
+
+### Prohibition
+
+**Client**
+
+* Send **prohibit command** with recipient `email` address:
+
+```javascript
+{
+  command: 'prohibit',
+  email: '{email}'
+}
+```
+
+**Server**
+
+* Send **prohibit command** to recipient with originator `email`:
+
+```javascript
+{
+  command: 'prohibit',
+  email: '{email}'
+}
+```
+
+* Remove originator and recipient from authorization table.
 
 ### Delivery
 

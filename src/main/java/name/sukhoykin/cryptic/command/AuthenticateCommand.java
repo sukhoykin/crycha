@@ -70,7 +70,7 @@ public class AuthenticateCommand implements CommandHandler<AuthenticateMessage> 
 
         client.sendMessage(authenticate);
 
-        service.registerClient(client);
+        service.onAuthenticated(client);
     }
 
     private byte[] signPublicKeys(byte[] key, byte[] dhPub, byte[] dsaPub) throws CryptoException {

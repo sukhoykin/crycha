@@ -115,7 +115,7 @@ public class ServiceEndpoint extends CommandDispatcher implements ServiceDomain 
     }
 
     @Override
-    public void registerClient(ClientSession client) {
+    public void onAuthenticated(ClientSession client) {
 
         client = clients.put(client.getEmail(), client);
 
@@ -127,10 +127,5 @@ public class ServiceEndpoint extends CommandDispatcher implements ServiceDomain 
     @Override
     public ClientSession lookupClient(String clientId) {
         return clients.get(clientId);
-    }
-
-    @Override
-    public void unregisterClient(String clientId) {
-
     }
 }
