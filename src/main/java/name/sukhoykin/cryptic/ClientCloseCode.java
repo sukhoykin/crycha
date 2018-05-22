@@ -4,7 +4,7 @@ import javax.websocket.CloseReason.CloseCode;
 
 public enum ClientCloseCode implements CloseCode {
 
-    INVALID_SIGNATURE(401), DUPLICATE_AUTHENTICATION(101), SERVER_ERROR(500);
+    DUPLICATE_AUTHENTICATION(101), INVALID_COMMAND(400), INVALID_SIGNATURE(401), INVALID_KEY(402), SERVER_ERROR(500);
 
     private int code;
 

@@ -60,26 +60,21 @@ function CipherSuite() {
     var sharedSecret = sha256.digest();
     var iv = aesjs.utils.hex.toBytes(totp);
 
-    console.log('sharedSecret: ' + aesjs.utils.hex.fromBytes(sharedSecret));
-    console.log('iv: ' + aesjs.utils.hex.fromBytes(iv));
-
     serverDsa = dhDsa;
     aesEncrypt = new aesjs.ModeOfOperation.cbc(sharedSecret, iv);
     aesDecrypt = new aesjs.ModeOfOperation.cbc(sharedSecret, iv);
   }
 
+  var isTLSEnabled = function() {
+    return serverDsa && aesEncrypt && aesDecrypt;
+  }
+
   var encrypt = function(command) {
 
-    console.log(command);
     command = aesjs.utils.utf8.toBytes(command);
-    console.log(command);
     command = aesjs.padding.pkcs7.pad(command);
-    console.log(command);
     command = aesEncrypt.encrypt(command);
-    console.log(command);
-    console.log(btoa(command));
     command = aesjs.utils.hex.fromBytes(command);
-    console.log(command);
 
     return command;
   }
@@ -94,6 +89,18 @@ function CipherSuite() {
     return command;
   }
 
+  var sign = function(command) {
+
+    command = aesjs.utils.hex.toBytes(command);
+
+    var sha256 = hashjs.sha256();
+    sha256.update(command);
+
+    var signature = dsa.sign(sha256.digest());
+
+    return aesjs.utils.hex.fromBytes(signature.toDER());
+  }
+
   self.setTOTP = setTOTP;
   self.getDHPublicKey = getDHPublicKey;
   self.getDSAPublicKey = getDSAPublicKey;
@@ -101,8 +108,10 @@ function CipherSuite() {
   self.decodePublicKey = decodePublicKey;
   self.signPublicKeys = signPublicKeys;
   self.setServerKeys = setServerKeys;
+  self.isTLSEnabled = isTLSEnabled;
   self.encrypt = encrypt;
   self.decrypt = decrypt;
+  self.sign = sign;
 }
 
 /**

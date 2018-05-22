@@ -77,17 +77,29 @@ function CrypticClient(url) {
     console.log(error);
   }
 
-  var sendMessage = function(message) {
+  var sendCommand = function(command) {
 
-    socket.send(JSON.stringify(message));
+    if (cipher.isTLSEnabled()) {
+
+      command = JSON.stringify(command);
+      command = cipher.encrypt(command);
+
+      command = {
+        command : 'envelope',
+        payload : command,
+        signature : cipher.sign(command)
+      };
+    }
+
+    socket.send(JSON.stringify(command));
 
     console.log('SEND');
-    console.log(message);
+    console.log(command);
   }
 
   var identify = function(email) {
 
-    sendMessage({
+    sendCommand({
       command : 'identify',
       email : email
     });
@@ -100,7 +112,7 @@ function CrypticClient(url) {
     var dhPub = cipher.getDHPublicKey();
     var dsaPub = cipher.getDSAPublicKey();
 
-    sendMessage({
+    sendCommand({
       command : 'authenticate',
       dh : cipher.encodePublicKey(dhPub),
       dsa : cipher.encodePublicKey(dsaPub),
@@ -127,21 +139,9 @@ function CrypticClient(url) {
     }
   }
 
-  var sendDataCommand = function(command) {
-
-    command = JSON.stringify(command);
-
-    sendMessage({
-      command : 'data',
-      payload : cipher.encrypt(command),
-      signature : 0
-    // cipher.sign(command)
-    });
-  }
-
   var authorize = function(clientId) {
 
-    sendDataCommand({
+    sendCommand({
       command : 'authorize',
       email : clientId
     });

@@ -16,6 +16,8 @@ import javax.websocket.server.ServerEndpoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gson.JsonParseException;
+
 import name.sukhoykin.cryptic.command.AuthenticateCommand;
 import name.sukhoykin.cryptic.command.AuthenticateHandler;
 import name.sukhoykin.cryptic.command.EnvelopeCommand;
@@ -49,7 +51,7 @@ public class ServiceEndpoint extends CommandDispatcher implements ServiceDomain 
     @OnMessage
     public void onMessage(Session session, CommandMessage command) {
 
-        log.debug("#{} -> {}", session.getId(), command);
+        log.debug("#{} RECEIVE {}", session.getId(), command);
 
         ClientSession client = sessions.get(session);
 
@@ -69,18 +71,26 @@ public class ServiceEndpoint extends CommandDispatcher implements ServiceDomain 
 
     private void closeClient(ClientSession client, CloseCode closeCode) {
 
+        Session session = client.getSession();
+
         try {
-            client.getSession().close(new CloseReason(closeCode, closeCode.toString()));
+            session.close(new CloseReason(closeCode, closeCode.toString()));
         } catch (IOException e) {
-            log.error("", e);
-            onClose(client.getSession());
+            log.error("Close error", e);
+            onClose(session);
         }
     }
 
     @OnError
     public void onError(Session session, Throwable error) {
-        log.error("#{} Error", session.getId(), error);
-        closeClient(sessions.get(session), ClientCloseCode.SERVER_ERROR);
+
+        log.error("#{} {}", session.getId(), error.getMessage(), error);
+
+        if (error.getCause() instanceof JsonParseException) {
+            closeClient(sessions.get(session), ClientCloseCode.INVALID_COMMAND);
+        } else {
+            closeClient(sessions.get(session), ClientCloseCode.SERVER_ERROR);
+        }
     }
 
     @OnClose
@@ -89,13 +99,13 @@ public class ServiceEndpoint extends CommandDispatcher implements ServiceDomain 
         log.debug("#{} Disconnected", session.getId());
 
         ClientSession client = sessions.remove(session);
-        clients.remove(client.getClientId(), client);
+        clients.remove(client.getEmail(), client);
     }
 
     @Override
     public void registerClient(ClientSession client) {
 
-        client = clients.put(client.getClientId(), client);
+        client = clients.put(client.getEmail(), client);
 
         if (client != null) {
             closeClient(client, ClientCloseCode.DUPLICATE_AUTHENTICATION);
