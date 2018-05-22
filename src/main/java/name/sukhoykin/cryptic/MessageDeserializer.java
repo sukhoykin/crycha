@@ -8,9 +8,9 @@ import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
 
-import name.sukhoykin.cryptic.command.AuthenticateCommand;
-import name.sukhoykin.cryptic.command.EnvelopeCommand;
-import name.sukhoykin.cryptic.command.IdentifyCommand;
+import name.sukhoykin.cryptic.command.AuthenticateMessage;
+import name.sukhoykin.cryptic.command.EnvelopeMessage;
+import name.sukhoykin.cryptic.command.IdentifyMessage;
 
 public class MessageDeserializer implements JsonDeserializer<CommandMessage> {
 
@@ -23,12 +23,12 @@ public class MessageDeserializer implements JsonDeserializer<CommandMessage> {
         String command = json.getAsJsonObject().get("command").getAsString();
 
         switch (command) {
-        case IdentifyCommand.NAME:
-            return gson.fromJson(json, IdentifyCommand.class);
-        case AuthenticateCommand.NAME:
-            return gson.fromJson(json, AuthenticateCommand.class);
-        case EnvelopeCommand.NAME:
-            return gson.fromJson(json, EnvelopeCommand.class);
+        case IdentifyMessage.NAME:
+            return gson.fromJson(json, IdentifyMessage.class);
+        case AuthenticateMessage.NAME:
+            return gson.fromJson(json, AuthenticateMessage.class);
+        case EnvelopeMessage.NAME:
+            return gson.fromJson(json, EnvelopeMessage.class);
         default:
             throw new JsonParseException("Invalid command: " + command);
         }

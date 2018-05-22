@@ -29,9 +29,9 @@ import org.bouncycastle.util.encoders.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import name.sukhoykin.cryptic.command.AuthenticateCommand;
-import name.sukhoykin.cryptic.command.DebugCommand;
-import name.sukhoykin.cryptic.command.EnvelopeCommand;
+import name.sukhoykin.cryptic.command.AuthenticateMessage;
+import name.sukhoykin.cryptic.command.DebugMessage;
+import name.sukhoykin.cryptic.command.EnvelopeMessage;
 import name.sukhoykin.cryptic.exception.CommandException;
 import name.sukhoykin.cryptic.exception.CryptoException;
 
@@ -184,7 +184,7 @@ public class ClientSession {
 
     public void sendCommand(CommandMessage command) throws CommandException {
 
-        if (!(command instanceof AuthenticateCommand) && !(command instanceof DebugCommand)) {
+        if (!(command instanceof AuthenticateMessage) && !(command instanceof DebugMessage)) {
 
             if (cipher == null) {
                 throw new IllegalStateException("TLS must be enabled for " + command.getClass().getName() + " command");
@@ -193,7 +193,7 @@ public class ClientSession {
             byte[] payload = cipher.encrypt(command.toString().getBytes());
             byte[] signature = signPayload(payload);
 
-            EnvelopeCommand envelope = new EnvelopeCommand();
+            EnvelopeMessage envelope = new EnvelopeMessage();
             envelope.setPayload(Hex.toHexString(payload));
             envelope.setSignature(Hex.toHexString(signature));
 

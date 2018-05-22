@@ -19,7 +19,7 @@ public class MessageEncoder implements Text<CommandMessage> {
     }
 
     @Override
-    public String encode(CommandMessage command) throws EncodeException {
-        return gson.toJson(command);
+    public String encode(CommandMessage message) throws EncodeException {
+        return gson.toJson(message);
     }
 }

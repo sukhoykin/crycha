@@ -2,13 +2,13 @@ package name.sukhoykin.cryptic.command;
 
 import name.sukhoykin.cryptic.CommandMessage;
 
-public class AuthorizeCommand extends CommandMessage {
+public class AuthorizeMessage extends CommandMessage {
 
     public static final String NAME = "authorize";
 
     private String email;
 
-    public AuthorizeCommand() {
+    public AuthorizeMessage() {
         super(NAME);
     }
 

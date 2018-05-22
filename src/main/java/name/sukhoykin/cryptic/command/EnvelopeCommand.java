@@ -1,31 +1,70 @@
 package name.sukhoykin.cryptic.command;
 
-import name.sukhoykin.cryptic.CommandMessage;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
+import java.security.Signature;
+import java.security.SignatureException;
+import java.util.Arrays;
 
-public class EnvelopeCommand extends CommandMessage {
+import org.bouncycastle.util.encoders.Hex;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-    public static final String NAME = "envelope";
+import name.sukhoykin.cryptic.ClientCipher;
+import name.sukhoykin.cryptic.ClientCloseCode;
+import name.sukhoykin.cryptic.ClientSession;
+import name.sukhoykin.cryptic.CommandHandler;
+import name.sukhoykin.cryptic.ServiceDomain;
+import name.sukhoykin.cryptic.exception.CommandException;
+import name.sukhoykin.cryptic.exception.CryptoException;
+import name.sukhoykin.cryptic.exception.ProtocolException;
 
-    private String payload;
-    private String signature;
+public class EnvelopeCommand implements CommandHandler<EnvelopeMessage> {
 
-    public EnvelopeCommand() {
-        super(NAME);
+    private static final Logger log = LoggerFactory.getLogger(EnvelopeCommand.class);
+    
+    private final String SIGNATURE_ALGORITHM = "SHA256withECDSA";
+
+    @Override
+    public void handleMessage(ServiceDomain service, ClientSession client, EnvelopeMessage command)
+            throws CommandException {
+
+//        ClientCipher cipher = client.getCipher();
+//        
+//        byte[] payload = Hex.decode(command.getPayload());
+//        byte[] signature = Hex.decode(command.getSignature());
+//        
+//        if (!verifySignature(client.getClientDSAKey(), payload, signature)) {
+//            throw new ProtocolException(ClientCloseCode.INVALID_SIGNATURE);
+//        }
+//        
+//        payload = cipher.decrypt(payload);
+        
+//        byte[] payload = cipher.decrypt(Hex.decode(command.getPayload()));
+//        log.debug(Arrays.toString(output));
+//        String payload = new String(output);
+//        log.debug("Payload: {}", payload);
+//
+//        AuthorizeCommand authorize = new AuthorizeCommand();
+//        authorize.setEmail("d@example.com");
+//
+//        client.sendCommand(authorize);
     }
-
-    public void setPayload(String payload) {
-        this.payload = payload;
-    }
-
-    public String getPayload() {
-        return payload;
-    }
-
-    public void setSignature(String signature) {
-        this.signature = signature;
-    }
-
-    public String getSignature() {
-        return signature;
+    
+    private boolean verifySignature(PublicKey key, byte[] payload, byte[] signature) throws CryptoException {
+        
+        try {
+            
+            Signature s = Signature.getInstance(SIGNATURE_ALGORITHM);
+            
+            s.initVerify(key);
+            s.update(payload);
+            
+            return s.verify(signature);
+            
+        } catch (NoSuchAlgorithmException | InvalidKeyException | SignatureException e) {
+            throw new CryptoException(e);
+        }
     }
 }

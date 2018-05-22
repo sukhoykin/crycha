@@ -18,12 +18,12 @@ import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonParseException;
 
+import name.sukhoykin.cryptic.command.AuthenticateMessage;
 import name.sukhoykin.cryptic.command.AuthenticateCommand;
-import name.sukhoykin.cryptic.command.AuthenticateHandler;
+import name.sukhoykin.cryptic.command.EnvelopeMessage;
 import name.sukhoykin.cryptic.command.EnvelopeCommand;
-import name.sukhoykin.cryptic.command.EnvelopeHandler;
+import name.sukhoykin.cryptic.command.IdentifyMessage;
 import name.sukhoykin.cryptic.command.IdentifyCommand;
-import name.sukhoykin.cryptic.command.IdentifyHandler;
 import name.sukhoykin.cryptic.exception.CommandException;
 import name.sukhoykin.cryptic.exception.ProtocolException;
 
@@ -37,9 +37,9 @@ public class ServiceEndpoint extends CommandDispatcher implements ServiceDomain 
     private final ConcurrentMap<String, ClientSession> clients = new ConcurrentHashMap<>();
 
     public ServiceEndpoint() {
-        registerCommandHandler(IdentifyCommand.class, new IdentifyHandler());
-        registerCommandHandler(AuthenticateCommand.class, new AuthenticateHandler());
-        registerCommandHandler(EnvelopeCommand.class, new EnvelopeHandler());
+        registerCommand(IdentifyMessage.class, new IdentifyCommand());
+        registerCommand(AuthenticateMessage.class, new AuthenticateCommand());
+        registerCommand(EnvelopeMessage.class, new EnvelopeCommand());
     }
 
     @OnOpen
@@ -49,15 +49,15 @@ public class ServiceEndpoint extends CommandDispatcher implements ServiceDomain 
     }
 
     @OnMessage
-    public void onMessage(Session session, CommandMessage command) {
+    public void onMessage(Session session, CommandMessage message) {
 
-        log.debug("#{} RECEIVE {}", session.getId(), command);
+        log.debug("#{} RECEIVE {}", session.getId(), message);
 
         ClientSession client = sessions.get(session);
 
         try {
 
-            dispatchCommand(this, client, command);
+            dispatchMessage(this, client, message);
 
         } catch (ProtocolException e) {
             log.warn("#{} {}", session.getId(), e.getMessage());

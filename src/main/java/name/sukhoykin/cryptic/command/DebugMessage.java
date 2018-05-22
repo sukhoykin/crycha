@@ -2,11 +2,11 @@ package name.sukhoykin.cryptic.command;
 
 import name.sukhoykin.cryptic.CommandMessage;
 
-public class DebugCommand extends CommandMessage {
+public class DebugMessage extends CommandMessage {
 
     private String data;
 
-    public DebugCommand(String command) {
+    public DebugMessage(String command) {
         super("debug-" + command);
     }
 

@@ -1,18 +1,31 @@
 package name.sukhoykin.cryptic.command;
 
-import name.sukhoykin.cryptic.CommandMessage;
+import javax.xml.bind.DatatypeConverter;
 
-public class IdentifyCommand extends CommandMessage {
-    
-    public static final String NAME = "identify";
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-    private String email;
+import name.sukhoykin.cryptic.ClientSession;
+import name.sukhoykin.cryptic.CommandHandler;
+import name.sukhoykin.cryptic.ServiceDomain;
+import name.sukhoykin.cryptic.exception.CommandException;
 
-    public IdentifyCommand() {
-        super(NAME);
-    }
+public class IdentifyCommand implements CommandHandler<IdentifyMessage> {
 
-    public String getEmail() {
-        return email;
+    private static final Logger log = LoggerFactory.getLogger(IdentifyCommand.class);
+
+    @Override
+    public void handleMessage(ServiceDomain service, ClientSession client, IdentifyMessage command)
+            throws CommandException {
+
+        byte[] totp = client.generateTOTP();
+
+        log.debug("EMAIL {} TOTP {}", command.getEmail(), DatatypeConverter.printHexBinary(totp).toLowerCase());
+
+        DebugMessage debug = new DebugMessage("totp");
+        debug.setData(DatatypeConverter.printHexBinary(totp).toLowerCase());
+
+        client.setEmail(command.getEmail());
+        client.sendCommand(debug);
     }
 }
