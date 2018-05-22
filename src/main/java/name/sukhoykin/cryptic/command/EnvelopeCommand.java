@@ -14,14 +14,9 @@ import name.sukhoykin.cryptic.ServiceDomain;
 import name.sukhoykin.cryptic.exception.CommandException;
 import name.sukhoykin.cryptic.exception.ProtocolException;
 
-public class EnvelopeCommand implements CommandHandler<EnvelopeMessage> {
+public class EnvelopeCommand extends CommandDispatcher implements CommandHandler<EnvelopeMessage> {
 
     private final MessageDecoder decoder = new MessageDecoder();
-    private final CommandDispatcher dispatcher;
-
-    public EnvelopeCommand(CommandDispatcher dispatcher) {
-        this.dispatcher = dispatcher;
-    }
 
     @Override
     public void handleMessage(ServiceDomain service, ClientSession client, EnvelopeMessage message)
@@ -43,6 +38,6 @@ public class EnvelopeCommand implements CommandHandler<EnvelopeMessage> {
             throw new CommandException(e);
         }
 
-        dispatcher.dispatchMessage(service, client, commandMessage);
+        dispatchMessage(service, client, commandMessage);
     }
 }

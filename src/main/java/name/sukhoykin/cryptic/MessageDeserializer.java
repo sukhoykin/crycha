@@ -9,6 +9,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
 
 import name.sukhoykin.cryptic.command.AuthenticateMessage;
+import name.sukhoykin.cryptic.command.AuthorizeMessage;
 import name.sukhoykin.cryptic.command.EnvelopeMessage;
 import name.sukhoykin.cryptic.command.IdentifyMessage;
 
@@ -29,6 +30,8 @@ public class MessageDeserializer implements JsonDeserializer<CommandMessage> {
             return gson.fromJson(json, AuthenticateMessage.class);
         case EnvelopeMessage.NAME:
             return gson.fromJson(json, EnvelopeMessage.class);
+        case AuthorizeMessage.NAME:
+            return gson.fromJson(json, AuthorizeMessage.class);
         default:
             throw new JsonParseException("Invalid command: " + command);
         }

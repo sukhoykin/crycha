@@ -19,6 +19,8 @@ import org.slf4j.LoggerFactory;
 
 import name.sukhoykin.cryptic.command.AuthenticateCommand;
 import name.sukhoykin.cryptic.command.AuthenticateMessage;
+import name.sukhoykin.cryptic.command.AuthorizeCommand;
+import name.sukhoykin.cryptic.command.AuthorizeMessage;
 import name.sukhoykin.cryptic.command.EnvelopeCommand;
 import name.sukhoykin.cryptic.command.EnvelopeMessage;
 import name.sukhoykin.cryptic.command.IdentifyCommand;
@@ -36,9 +38,14 @@ public class ServiceEndpoint extends CommandDispatcher implements ServiceDomain 
     private final ConcurrentMap<String, ClientSession> clients = new ConcurrentHashMap<>();
 
     public ServiceEndpoint() {
+
         registerCommand(IdentifyMessage.class, new IdentifyCommand());
         registerCommand(AuthenticateMessage.class, new AuthenticateCommand());
-        registerCommand(EnvelopeMessage.class, new EnvelopeCommand(this));
+
+        EnvelopeCommand dispatcher = new EnvelopeCommand();
+        registerCommand(EnvelopeMessage.class, dispatcher);
+
+        dispatcher.registerCommand(AuthorizeMessage.class, new AuthorizeCommand());
     }
 
     @OnOpen

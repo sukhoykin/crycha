@@ -85,6 +85,24 @@ public class ClientSession {
         return email;
     }
 
+    public PublicKey getClientDHKey() {
+
+        if (dhKey == null) {
+            throw new IllegalStateException("TLS is not enabled");
+        }
+
+        return dhKey;
+    }
+
+    public PublicKey getClientDSAKey() {
+
+        if (dsaKey == null) {
+            throw new IllegalStateException("TLS is not enabled");
+        }
+
+        return dsaKey;
+    }
+
     public PublicKey getDHKey() {
 
         if (dhKeyPair == null) {
