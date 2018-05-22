@@ -247,7 +247,7 @@ IV = truncate(DSApriv.own x DSApub.remote)
 
 **Server**
 
-* If recipient authenticated and authorized then route him **message command** with originator `email`:
+* If recipient authenticated and authorized then route to him **message command** with originator `email`:
 
 ```javascript
 {
