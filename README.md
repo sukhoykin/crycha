@@ -14,8 +14,6 @@ grunt
 
 # Protocol specification
 
-## Overview
-
 Communication protocol include three security and functionality tiers. Each tier has own TLS-encryption and nested in previous:
 
 * Authentication protocol encrypted within [secured](https://en.wikipedia.org/wiki/Transport_Layer_Security) WebSocket [HTTPS](https://en.wikipedia.org/wiki/HTTPS) connection.
@@ -160,7 +158,7 @@ DSApub.Verify(payload, Spayload)
 
 **Server**
 
-* If recipient authenticated on server send him **authorize command** with originator `email` and keys:
+* If recipient authenticated on server then send him **authorize command** with originator `email` and keys:
 
 ```javascript
 {
@@ -249,7 +247,7 @@ IV = truncate(DSApriv.own x DSApub.remote)
 
 **Server**
 
-* If recipient authenticated and authorized route him **message command** with originator `email`:
+* If recipient authenticated and authorized then route him **message command** with originator `email`:
 
 ```javascript
 {
