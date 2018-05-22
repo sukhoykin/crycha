@@ -20,10 +20,10 @@ import name.sukhoykin.cryptic.exception.ProtocolException;
 
 public class AuthenticateCommand implements CommandHandler<AuthenticateMessage> {
 
-    private final String PUBLIC_KEY_SIGN_ALGORITHM = "HmacSHA256";
+    private final String PUBLIC_KEY_SIGNATURE_ALGORITHM = "HmacSHA256";
 
     @Override
-    public void handleMessage(ServiceDomain service, ClientSession client, AuthenticateMessage command)
+    public void handleMessage(ServiceDomain service, ClientSession client, AuthenticateMessage message)
             throws CommandException {
 
         /**
@@ -31,9 +31,9 @@ public class AuthenticateCommand implements CommandHandler<AuthenticateMessage> 
          */
         byte[] totp = client.generateTOTP();
 
-        byte[] dhPub = Hex.decode(command.getDh());
-        byte[] dsaPub = Hex.decode(command.getDsa());
-        byte[] signature = Hex.decode(command.getSignature());
+        byte[] dhPub = Hex.decode(message.getDh());
+        byte[] dsaPub = Hex.decode(message.getDsa());
+        byte[] signature = Hex.decode(message.getSignature());
 
         if (!Arrays.equals(signature, signPublicKeys(totp, dhPub, dsaPub))) {
             throw new ProtocolException(ClientCloseCode.INVALID_SIGNATURE);
@@ -68,18 +68,18 @@ public class AuthenticateCommand implements CommandHandler<AuthenticateMessage> 
         authenticate.setDsa(Hex.toHexString(dsaPub));
         authenticate.setSignature(Hex.toHexString(signature));
 
-        client.sendCommand(authenticate);
+        client.sendMessage(authenticate);
 
         service.registerClient(client);
     }
 
     private byte[] signPublicKeys(byte[] key, byte[] dhPub, byte[] dsaPub) throws CryptoException {
 
-        SecretKeySpec secretKeySpec = new SecretKeySpec(key, PUBLIC_KEY_SIGN_ALGORITHM);
+        SecretKeySpec secretKeySpec = new SecretKeySpec(key, PUBLIC_KEY_SIGNATURE_ALGORITHM);
 
         try {
 
-            Mac mac = Mac.getInstance(PUBLIC_KEY_SIGN_ALGORITHM);
+            Mac mac = Mac.getInstance(PUBLIC_KEY_SIGNATURE_ALGORITHM);
             mac.init(secretKeySpec);
 
             mac.update(dhPub);

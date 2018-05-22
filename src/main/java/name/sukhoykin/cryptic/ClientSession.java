@@ -11,6 +11,8 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.PublicKey;
 import java.security.SecureRandom;
+import java.security.Signature;
+import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
 
 import javax.crypto.KeyAgreement;
@@ -41,9 +43,10 @@ public class ClientSession {
 
     public static final int TOTP_VALIDITY_MINUTES = 5;
     public static final String TOTP_ALGORITHM = "HmacMD5";
+    public static final String SHARED_SECRET_HASH_ALGORITHM = "SHA-256";
     public static final String KEY_EXCHANGE_ALGORITHM = "ECDH";
     public static final String SIGNATURE_ALGORITHM = "ECDSA";
-    public static final String SHARED_SECRET_HASH_ALGORITHM = "SHA-256";
+    public static final String SIGNATURE_HASH_ALGORITHM = "SHA256withECDSA";
 
     private static final ECParameterSpec CURVE_25519_PARAMETER_SPEC = ECNamedCurveTable.getParameterSpec("curve25519");
 
@@ -182,30 +185,50 @@ public class ClientSession {
         }
     }
 
-    public void sendCommand(CommandMessage command) throws CommandException {
+    public boolean verifyPayload(byte[] payload, byte[] signature) throws CryptoException {
 
-        if (!(command instanceof AuthenticateMessage) && !(command instanceof DebugMessage)) {
+        try {
+
+            Signature s = Signature.getInstance(SIGNATURE_HASH_ALGORITHM);
+
+            s.initVerify(dsaKey);
+            s.update(payload);
+
+            return s.verify(signature);
+
+        } catch (NoSuchAlgorithmException | InvalidKeyException | SignatureException e) {
+            throw new CryptoException(e);
+        }
+    }
+
+    public byte[] decryptPayload(byte[] payload) throws CryptoException {
+        return cipher.decrypt(payload);
+    }
+
+    public void sendMessage(CommandMessage message) throws CommandException {
+
+        if (!(message instanceof AuthenticateMessage) && !(message instanceof DebugMessage)) {
 
             if (cipher == null) {
-                throw new IllegalStateException("TLS must be enabled for " + command.getClass().getName() + " command");
+                throw new IllegalStateException("TLS must be enabled for " + message.getClass().getName() + " command");
             }
 
-            byte[] payload = cipher.encrypt(command.toString().getBytes());
+            byte[] payload = cipher.encrypt(message.toString().getBytes());
             byte[] signature = signPayload(payload);
 
             EnvelopeMessage envelope = new EnvelopeMessage();
             envelope.setPayload(Hex.toHexString(payload));
             envelope.setSignature(Hex.toHexString(signature));
 
-            command = envelope;
+            message = envelope;
         }
 
         try {
 
-            session.getBasicRemote().sendObject(command);
+            session.getBasicRemote().sendObject(message);
 
             if (log.isDebugEnabled()) {
-                log.debug("#{} SEND {}", session.getId(), command);
+                log.debug("#{} SEND {}", session.getId(), message);
             }
 
         } catch (IOException | EncodeException e) {
@@ -213,7 +236,19 @@ public class ClientSession {
         }
     }
 
-    private byte[] signPayload(byte[] payload) {
-        return new byte[1];
+    private byte[] signPayload(byte[] payload) throws CryptoException {
+
+        try {
+
+            Signature s = Signature.getInstance(SIGNATURE_HASH_ALGORITHM);
+
+            s.initSign(dsaKeyPair.getPrivate());
+            s.update(payload);
+
+            return s.sign();
+
+        } catch (NoSuchAlgorithmException | InvalidKeyException | SignatureException e) {
+            throw new CryptoException(e);
+        }
     }
 }

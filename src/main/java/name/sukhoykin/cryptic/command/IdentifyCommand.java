@@ -15,17 +15,17 @@ public class IdentifyCommand implements CommandHandler<IdentifyMessage> {
     private static final Logger log = LoggerFactory.getLogger(IdentifyCommand.class);
 
     @Override
-    public void handleMessage(ServiceDomain service, ClientSession client, IdentifyMessage command)
+    public void handleMessage(ServiceDomain service, ClientSession client, IdentifyMessage message)
             throws CommandException {
 
         byte[] totp = client.generateTOTP();
 
-        log.debug("EMAIL {} TOTP {}", command.getEmail(), DatatypeConverter.printHexBinary(totp).toLowerCase());
+        log.debug("EMAIL {} TOTP {}", message.getEmail(), DatatypeConverter.printHexBinary(totp).toLowerCase());
 
         DebugMessage debug = new DebugMessage("totp");
         debug.setData(DatatypeConverter.printHexBinary(totp).toLowerCase());
 
-        client.setEmail(command.getEmail());
-        client.sendCommand(debug);
+        client.setEmail(message.getEmail());
+        client.sendMessage(debug);
     }
 }

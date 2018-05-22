@@ -6,6 +6,7 @@ import java.util.concurrent.ConcurrentMap;
 
 import javax.websocket.CloseReason;
 import javax.websocket.CloseReason.CloseCode;
+import javax.websocket.DecodeException;
 import javax.websocket.OnClose;
 import javax.websocket.OnError;
 import javax.websocket.OnMessage;
@@ -16,14 +17,12 @@ import javax.websocket.server.ServerEndpoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.gson.JsonParseException;
-
-import name.sukhoykin.cryptic.command.AuthenticateMessage;
 import name.sukhoykin.cryptic.command.AuthenticateCommand;
-import name.sukhoykin.cryptic.command.EnvelopeMessage;
+import name.sukhoykin.cryptic.command.AuthenticateMessage;
 import name.sukhoykin.cryptic.command.EnvelopeCommand;
-import name.sukhoykin.cryptic.command.IdentifyMessage;
+import name.sukhoykin.cryptic.command.EnvelopeMessage;
 import name.sukhoykin.cryptic.command.IdentifyCommand;
+import name.sukhoykin.cryptic.command.IdentifyMessage;
 import name.sukhoykin.cryptic.exception.CommandException;
 import name.sukhoykin.cryptic.exception.ProtocolException;
 
@@ -39,7 +38,7 @@ public class ServiceEndpoint extends CommandDispatcher implements ServiceDomain 
     public ServiceEndpoint() {
         registerCommand(IdentifyMessage.class, new IdentifyCommand());
         registerCommand(AuthenticateMessage.class, new AuthenticateCommand());
-        registerCommand(EnvelopeMessage.class, new EnvelopeCommand());
+        registerCommand(EnvelopeMessage.class, new EnvelopeCommand(this));
     }
 
     @OnOpen
@@ -64,8 +63,14 @@ public class ServiceEndpoint extends CommandDispatcher implements ServiceDomain 
             closeClient(client, e.getCloseCode());
 
         } catch (CommandException e) {
+
             log.error("#{} {}", session.getId(), e.getMessage());
-            closeClient(client, ClientCloseCode.SERVER_ERROR);
+
+            if (e.getCause() instanceof DecodeException) {
+                closeClient(client, ClientCloseCode.INVALID_COMMAND);
+            } else {
+                closeClient(client, ClientCloseCode.SERVER_ERROR);
+            }
         }
     }
 
@@ -86,7 +91,7 @@ public class ServiceEndpoint extends CommandDispatcher implements ServiceDomain 
 
         log.error("#{} {}", session.getId(), error.getMessage(), error);
 
-        if (error.getCause() instanceof JsonParseException) {
+        if (error instanceof DecodeException) {
             closeClient(sessions.get(session), ClientCloseCode.INVALID_COMMAND);
         } else {
             closeClient(sessions.get(session), ClientCloseCode.SERVER_ERROR);
