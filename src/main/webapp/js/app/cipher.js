@@ -111,8 +111,6 @@ function CipherSuite() {
     var sha256 = hashjs.sha256();
     sha256.update(message);
 
-    console.log(dsaKey);
-
     return dsaKey.verify(sha256.digest(), signature);
   }
 

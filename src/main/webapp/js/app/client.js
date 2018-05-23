@@ -58,7 +58,21 @@ function CrypticClient(url) {
         break;
 
       case 'envelope':
-        envelopeCommand(message);
+
+        message = decryptMessage(message);
+
+        switch (message.command) {
+
+        case 'authorize':
+          authorizeCommand(message);
+          break;
+
+        default:
+          console.error('Invalid command: ' + message.command);
+          socket.close(INVALID_COMMAND);
+          return;
+        }
+
         break;
 
       default:
@@ -93,15 +107,7 @@ function CrypticClient(url) {
     try {
 
       if (cipher.isTLSEnabled()) {
-
-        message = JSON.stringify(message);
-        message = cipher.encrypt(message);
-
-        message = {
-          command : 'envelope',
-          payload : message,
-          signature : cipher.sign(message)
-        };
+        message = encryptMessage(message);
       }
 
       socket.send(JSON.stringify(message));
@@ -113,6 +119,33 @@ function CrypticClient(url) {
       console.error(e);
       socket.close(CLIENT_ERROR);
     }
+  }
+
+  var encryptMessage = function(message) {
+
+    message = JSON.stringify(message);
+    message = cipher.encrypt(message);
+
+    message = {
+      command : 'envelope',
+      payload : message,
+      signature : cipher.sign(message)
+    };
+
+    return message;
+  }
+
+  var decryptMessage = function(message) {
+
+    if (!cipher.verify(message.payload, message.signature)) {
+      socket.close(INVALID_SIGNATURE);
+      return;
+    }
+
+    message = cipher.decrypt(message.payload);
+    message = JSON.parse(message);
+
+    return message;
   }
 
   var authenticateCommand = function(message) {
@@ -132,16 +165,6 @@ function CrypticClient(url) {
     if (self.onAuthenticate) {
       self.onAuthenticate();
     }
-  }
-
-  var envelopeCommand = function(message) {
-
-    if (!cipher.verify(message.payload, message.signature)) {
-      socket.close(INVALID_SIGNATURE);
-      return;
-    }
-
-    console.log('SIGNATURE OK');
   }
 
   var authorizeCommand = function(message) {
