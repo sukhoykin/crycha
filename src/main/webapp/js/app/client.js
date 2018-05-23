@@ -1,5 +1,8 @@
 function CrypticClient(url) {
 
+  var INVALID_COMMAND = 3500;
+  var INVALID_SIGNATURE = 3501;
+
   var self = this;
   var cipher = new CipherSuite();
 
@@ -36,30 +39,35 @@ function CrypticClient(url) {
 
     try {
 
-      var command = JSON.parse(event.data);
+      var message = JSON.parse(event.data);
 
       console.log('RECEIVE');
-      console.log(command);
+      console.log(message);
 
-      switch (command.command) {
+      switch (message.command) {
 
       case 'debug-totp':
         if (self.onDebug) {
-          self.onDebug(command.data);
+          self.onDebug(message.data);
         }
         break;
 
       case 'authenticate':
-        authenticateCommand(command);
+        authenticateCommand(message);
         break;
 
       case 'data':
-        console.log(cipher.decrypt(command.payload));
+        console.log(cipher.decrypt(message.payload));
         break;
 
       case 'authorize':
-        authorizeCommand(command);
+        authorizeCommand(message);
         break;
+
+      default:
+        console.error('Invalid command: ' + message.command);
+        socket.close(INVALID_COMMAND);
+        return;
       }
 
     } catch (e) {
@@ -77,29 +85,29 @@ function CrypticClient(url) {
     console.log(error);
   }
 
-  var sendCommand = function(command) {
+  var sendMessage = function(message) {
 
     if (cipher.isTLSEnabled()) {
 
-      command = JSON.stringify(command);
-      command = cipher.encrypt(command);
+      message = JSON.stringify(message);
+      message = cipher.encrypt(message);
 
-      command = {
+      message = {
         command : 'envelope',
-        payload : command,
-        signature : cipher.sign(command)
+        payload : message,
+        signature : cipher.sign(message)
       };
     }
 
-    socket.send(JSON.stringify(command));
+    socket.send(JSON.stringify(message));
 
     console.log('SEND');
-    console.log(command);
+    console.log(message);
   }
 
   var identify = function(email) {
 
-    sendCommand({
+    sendMessage({
       command : 'identify',
       email : email
     });
@@ -109,41 +117,41 @@ function CrypticClient(url) {
 
     cipher.setTOTP(totp);
 
-    var dhPub = cipher.getDHPublicKey();
-    var dsaPub = cipher.getDSAPublicKey();
+    var dh = cipher.getDHKey();
+    var dsa = cipher.getDSAKey();
 
-    sendCommand({
+    sendMessage({
       command : 'authenticate',
-      dh : cipher.encodePublicKey(dhPub),
-      dsa : cipher.encodePublicKey(dsaPub),
-      signature : cipher.signPublicKeys(dhPub, dsaPub)
+      dh : cipher.encodePublicKey(dh),
+      dsa : cipher.encodePublicKey(dsa),
+      signature : cipher.signPublicKeys(dh, dsa)
     });
   }
 
-  var authenticateCommand = function(command) {
+  var authenticateCommand = function(message) {
 
-    var dhPub = cipher.decodePublicKey(command.dh);
-    var dsaPub = cipher.decodePublicKey(command.dsa);
+    var dh = cipher.decodePublicKey(message.dh);
+    var dsa = cipher.decodePublicKey(message.dsa);
 
-    var signature = cipher.signPublicKeys(dhPub, dsaPub);
+    var signature = cipher.signPublicKeys(dh, dsa);
 
-    if (signature !== command.signature) {
-      socket.close(401);
+    if (signature !== message.signature) {
+      socket.close(INVALID_SIGNATURE);
       return;
     }
 
-    cipher.setServerKeys(dhPub, dsaPub);
+    cipher.setUpTLS(dh, dsa);
 
     if (self.onAuthenticate) {
       self.onAuthenticate();
     }
   }
 
-  var authorize = function(clientId) {
+  var authorize = function(email) {
 
-    sendCommand({
+    sendMessage({
       command : 'authorize',
-      email : clientId
+      email : email
     });
   }
 

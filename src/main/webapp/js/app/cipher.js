@@ -10,8 +10,8 @@ function CipherSuite() {
 
   var curve = new elliptic.ec(Curve25519.name);
 
-  var dh = curve.genKeyPair();
-  var dsa = curve.genKeyPair();
+  var dhKeyPair = curve.genKeyPair();
+  var dsaKeyPair = curve.genKeyPair();
 
   var totp;
   var serverDsa;
@@ -22,12 +22,12 @@ function CipherSuite() {
     totp = key;
   }
 
-  var getDHPublicKey = function() {
-    return dh.getPublic();
+  var getDHKey = function() {
+    return dhKeyPair.getPublic();
   }
 
-  var getDSAPublicKey = function() {
-    return dsa.getPublic();
+  var getDSAKey = function() {
+    return dsaKeyPair.getPublic();
   }
 
   var encodePublicKey = function(key) {
@@ -38,29 +38,29 @@ function CipherSuite() {
     return curve.keyFromPublic(key, "hex").getPublic();
   }
 
-  var signPublicKeys = function(dhPub, dsaPub) {
+  var signPublicKeys = function(dh, dsa) {
 
     var mac = hashjs.hmac(hashjs.sha256, totp, 'hex');
 
-    mac.update(dhPub.encodeCompressed());
-    mac.update(dsaPub.encodeCompressed());
+    mac.update(dh.encodeCompressed());
+    mac.update(dsa.encodeCompressed());
 
     return mac.digest('hex');
   }
 
-  var setServerKeys = function(dhPub, dhDsa) {
+  var setUpTLS = function(dh, dsa) {
 
-    var sharedSecret = dh.derive(dhPub);
+    var sharedSecret = dhKeyPair.derive(dh);
 
     var sha256 = hashjs.sha256();
     sha256.update(sharedSecret.toArray());
-    sha256.update(dhPub.encode());
-    sha256.update(dh.getPublic().encode());
+    sha256.update(dh.encode());
+    sha256.update(dhKeyPair.getPublic().encode());
 
     var sharedSecret = sha256.digest();
     var iv = aesjs.utils.hex.toBytes(totp);
 
-    serverDsa = dhDsa;
+    serverDsa = dsa;
     aesEncrypt = new aesjs.ModeOfOperation.cbc(sharedSecret, iv);
     aesDecrypt = new aesjs.ModeOfOperation.cbc(sharedSecret, iv);
   }
@@ -69,45 +69,45 @@ function CipherSuite() {
     return serverDsa && aesEncrypt && aesDecrypt;
   }
 
-  var encrypt = function(command) {
+  var encrypt = function(message) {
 
-    command = aesjs.utils.utf8.toBytes(command);
-    command = aesjs.padding.pkcs7.pad(command);
-    command = aesEncrypt.encrypt(command);
-    command = aesjs.utils.hex.fromBytes(command);
+    message = aesjs.utils.utf8.toBytes(message);
+    message = aesjs.padding.pkcs7.pad(message);
+    message = aesEncrypt.encrypt(message);
+    message = aesjs.utils.hex.fromBytes(message);
 
-    return command;
+    return message;
   }
 
-  var decrypt = function(command) {
+  var decrypt = function(message) {
 
-    command = aesjs.utils.hex.toBytes(command);
-    command = aesDecrypt.decrypt(command);
-    command = aesjs.padding.pkcs7.strip(command);
-    command = aesjs.utils.utf8.fromBytes(command);
+    message = aesjs.utils.hex.toBytes(message);
+    message = aesDecrypt.decrypt(message);
+    message = aesjs.padding.pkcs7.strip(message);
+    message = aesjs.utils.utf8.fromBytes(message);
 
-    return command;
+    return message;
   }
 
-  var sign = function(command) {
+  var sign = function(message) {
 
-    command = aesjs.utils.hex.toBytes(command);
+    message = aesjs.utils.hex.toBytes(message);
 
     var sha256 = hashjs.sha256();
-    sha256.update(command);
+    sha256.update(message);
 
-    var signature = dsa.sign(sha256.digest());
+    var signature = dsaKeyPair.sign(sha256.digest());
 
     return aesjs.utils.hex.fromBytes(signature.toDER());
   }
 
   self.setTOTP = setTOTP;
-  self.getDHPublicKey = getDHPublicKey;
-  self.getDSAPublicKey = getDSAPublicKey;
+  self.getDHKey = getDHKey;
+  self.getDSAKey = getDSAKey;
   self.encodePublicKey = encodePublicKey;
   self.decodePublicKey = decodePublicKey;
   self.signPublicKeys = signPublicKeys;
-  self.setServerKeys = setServerKeys;
+  self.setUpTLS = setUpTLS;
   self.isTLSEnabled = isTLSEnabled;
   self.encrypt = encrypt;
   self.decrypt = decrypt;

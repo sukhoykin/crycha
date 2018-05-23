@@ -18,7 +18,7 @@ Communication protocol include three security and functionality tiers. Each tier
 
 * Authentication protocol encrypted within [secured](https://en.wikipedia.org/wiki/Transport_Layer_Security) WebSocket [HTTPS](https://en.wikipedia.org/wiki/HTTPS) connection.
 * Authorization and delivery protocol encrypted with hybrid client-server cipher suite (ECDHE-ECDSA-AES). 
-* Messaging protocol encrypted with hybrid client-client cipher suite (ECDHE-EdDSA-AES). 
+* Messaging protocol encrypted with hybrid client-client cipher suite (ECDHE-ECDSA-AES). 
 
 ## Authentication
 
