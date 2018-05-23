@@ -2,31 +2,19 @@
 
 var client = new CrypticClient();
 
-client.onReady = function() {
-
-  try {
-    client.identify(getParameterByName('id') + '@example.com');
-  } catch (e) {
-    console.log(e);
-  }
+client.onOpen = function() {
+  client.identify(getParameterByName('id') + '@example.com');
 }
 
 client.onDebug = function(data) {
-
-  try {
     client.authenticate(data);
-  } catch (e) {
-    console.log(e);
-  }
 }
 
 client.onAuthenticate = function() {
+}
 
-  try {
-   // client.authorize('b@example.com');
-  } catch (e) {
-    console.log(e);
-  }
+client.onClose = function(event) {
+  console.log('Close: ' + event.code);
 }
 
 function test() {

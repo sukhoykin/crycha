@@ -14,7 +14,7 @@ function CipherSuite() {
   var dsaKeyPair = curve.genKeyPair();
 
   var totp;
-  var serverDsa;
+  var dsaKey;
   var aesEncrypt;
   var aesDecrypt;
 
@@ -34,8 +34,8 @@ function CipherSuite() {
     return key.encodeCompressed('hex');
   }
 
-  var decodePublicKey = function(key) {
-    return curve.keyFromPublic(key, "hex").getPublic();
+  var decodeKey = function(key) {
+    return curve.keyFromPublic(key, "hex");
   }
 
   var signPublicKeys = function(dh, dsa) {
@@ -50,6 +50,8 @@ function CipherSuite() {
 
   var setUpTLS = function(dh, dsa) {
 
+    dh = dh.getPublic();
+
     var sharedSecret = dhKeyPair.derive(dh);
 
     var sha256 = hashjs.sha256();
@@ -60,13 +62,14 @@ function CipherSuite() {
     var sharedSecret = sha256.digest();
     var iv = aesjs.utils.hex.toBytes(totp);
 
-    serverDsa = dsa;
+    dsaKey = dsa;
+
     aesEncrypt = new aesjs.ModeOfOperation.cbc(sharedSecret, iv);
     aesDecrypt = new aesjs.ModeOfOperation.cbc(sharedSecret, iv);
   }
 
   var isTLSEnabled = function() {
-    return serverDsa && aesEncrypt && aesDecrypt;
+    return dsaKey && aesEncrypt && aesDecrypt;
   }
 
   var encrypt = function(message) {
@@ -101,17 +104,30 @@ function CipherSuite() {
     return aesjs.utils.hex.fromBytes(signature.toDER());
   }
 
+  var verify = function(message, signature) {
+
+    message = aesjs.utils.hex.toBytes(message);
+
+    var sha256 = hashjs.sha256();
+    sha256.update(message);
+
+    console.log(dsaKey);
+
+    return dsaKey.verify(sha256.digest(), signature);
+  }
+
   self.setTOTP = setTOTP;
   self.getDHKey = getDHKey;
   self.getDSAKey = getDSAKey;
   self.encodePublicKey = encodePublicKey;
-  self.decodePublicKey = decodePublicKey;
+  self.decodeKey = decodeKey;
   self.signPublicKeys = signPublicKeys;
   self.setUpTLS = setUpTLS;
   self.isTLSEnabled = isTLSEnabled;
   self.encrypt = encrypt;
   self.decrypt = decrypt;
   self.sign = sign;
+  self.verify = verify;
 }
 
 /**
