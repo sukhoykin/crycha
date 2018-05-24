@@ -71,8 +71,8 @@ Skey = HMAC-SHA-256(TOTP, DHpub || DSApub)
 
 * Calculate `TOTP` from `R`.
 * Calculate `Skey` for received client public keys.
-* Verify signature. If signature is not valid, close session with code `401`.
-* If server have `active session` with this `email` then close `active session` with code `101`.
+* Verify signature. If signature is not valid, close session with `CLIENT_INVALID_SIGNATURE` code.
+* If server have `active session` with this `email` then close `active session` with `DUPLICATE_AUTHENTICATION` code.
 * Generate ECDH key pair `DHpriv` and `DHpub` with Curve25519 curve for key exchange. 
 * Generate ECDSA key pair `DSApriv` and `DSApub` with Curve25519 curve for data signature.
 * Calculate signature `Skey` for server public keys.
@@ -92,7 +92,7 @@ Skey = HMAC-SHA-256(TOTP, DHpub || DSApub)
 **Client**
 
 * Calculate `Skey` for received server public keys.
-* Verify signature. If signature is not valid, close session with code `401`.
+* Verify signature. If signature is not valid, close session with `SERVER_INVALID_SIGNATURE` code.
 
 ### Client-Server TLS
 

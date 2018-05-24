@@ -26,7 +26,7 @@ public class EnvelopeCommand extends CommandDispatcher implements CommandHandler
         byte[] signature = Hex.decode(message.getSignature());
 
         if (!client.verifyPayload(payload, signature)) {
-            throw new ProtocolException(ClientCloseCode.INVALID_SIGNATURE);
+            throw new ProtocolException(ClientCloseCode.CLIENT_INVALID_SIGNATURE);
         }
 
         payload = client.decryptPayload(payload);

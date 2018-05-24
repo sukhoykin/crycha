@@ -6,8 +6,8 @@ public class DebugMessage extends CommandMessage {
 
     private String data;
 
-    public DebugMessage(String command) {
-        super("debug-" + command);
+    public DebugMessage() {
+        super("debug");
     }
 
     public void setData(String data) {

@@ -36,7 +36,7 @@ public class AuthenticateCommand implements CommandHandler<AuthenticateMessage> 
         byte[] signature = Hex.decode(message.getSignature());
 
         if (!Arrays.equals(signature, signPublicKeys(totp, dhPub, dsaPub))) {
-            throw new ProtocolException(ClientCloseCode.INVALID_SIGNATURE);
+            throw new ProtocolException(ClientCloseCode.CLIENT_INVALID_SIGNATURE);
         }
 
         /**
@@ -50,7 +50,7 @@ public class AuthenticateCommand implements CommandHandler<AuthenticateMessage> 
             dsaKey = client.decodePublicKey(ClientSession.SIGNATURE_ALGORITHM, dsaPub);
 
         } catch (CryptoException e) {
-            throw new ProtocolException(ClientCloseCode.INVALID_KEY);
+            throw new ProtocolException(ClientCloseCode.CLIENT_INVALID_KEY);
         }
 
         client.setUpTLS(dhKey, dsaKey, totp);

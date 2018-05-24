@@ -74,7 +74,7 @@ public class ServiceEndpoint extends CommandDispatcher implements ServiceDomain 
             log.error("#{} {}", session.getId(), e.getMessage());
 
             if (e.getCause() instanceof DecodeException) {
-                closeClient(client, ClientCloseCode.INVALID_COMMAND);
+                closeClient(client, ClientCloseCode.CLIENT_INVALID_COMMAND);
             } else {
                 closeClient(client, ClientCloseCode.SERVER_ERROR);
             }
@@ -89,29 +89,37 @@ public class ServiceEndpoint extends CommandDispatcher implements ServiceDomain 
             session.close(new CloseReason(closeCode, closeCode.toString()));
         } catch (IOException e) {
             log.error("Close error", e);
-            onClose(session);
+            onClose(session, new CloseReason(closeCode, closeCode.toString()));
         }
     }
 
     @OnError
     public void onError(Session session, Throwable error) {
 
-        log.error("#{} {}", session.getId(), error.getMessage(), error);
-
         if (error instanceof DecodeException) {
-            closeClient(sessions.get(session), ClientCloseCode.INVALID_COMMAND);
+            log.error("#{} {}", session.getId(), error.getMessage());
+            closeClient(sessions.get(session), ClientCloseCode.CLIENT_INVALID_COMMAND);
         } else {
+            log.error("#{} {}", session.getId(), error.getMessage(), error);
             closeClient(sessions.get(session), ClientCloseCode.SERVER_ERROR);
         }
     }
 
     @OnClose
-    public void onClose(Session session) {
+    public void onClose(Session session, CloseReason reason) {
 
-        log.debug("#{} Disconnected", session.getId());
+        if (reason.getCloseCode().getCode() < 4000) {
+            log.debug("#{} Disconnected", session.getId());
+        } else {
+            log.error("#{} Disconnected {} {}",
+                    new Object[] { session.getId(), reason.getCloseCode().getCode(), reason.getReasonPhrase() });
+        }
 
         ClientSession client = sessions.remove(session);
-        clients.remove(client.getEmail(), client);
+
+        if (client.getEmail() != null) {
+            clients.remove(client.getEmail(), client);
+        }
     }
 
     @Override

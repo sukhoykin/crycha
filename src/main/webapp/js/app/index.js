@@ -1,24 +1,30 @@
 'use strict';
 
-var client = new CrypticClient();
+var service = new CrypticService();
 
-client.onOpen = function() {
-  client.identify(getParameterByName('id') + '@example.com');
+service.onOpen = function() {
+  console.log('Connected to %s', service.getUrl());
+  service.identify(getParameterByName('id') + '@example.com');
 }
 
-client.onDebug = function(data) {
-    client.authenticate(data);
+service.onDebug = function(data) {
+  service.authenticate(data);
 }
 
-client.onAuthenticate = function() {
+service.onAuthenticate = function() {
+  console.log('onAuthenticate');
 }
 
-client.onClose = function(event) {
-  console.log('Close: ' + event.code);
+service.onAuthorize = function(service) {
+  service.authorize(service);
+}
+
+service.onClose = function(event) {
+  console.log('Disconnected %s %s', event.code, event.reason);
 }
 
 function test() {
-  client.authorize('b@example.com');
+  service.authorize('b@example.com');
 }
 
 function getParameterByName(name, url) {
