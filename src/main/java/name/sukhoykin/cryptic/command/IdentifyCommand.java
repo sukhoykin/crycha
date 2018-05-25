@@ -1,7 +1,6 @@
 package name.sukhoykin.cryptic.command;
 
-import javax.xml.bind.DatatypeConverter;
-
+import org.bouncycastle.util.encoders.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,10 +25,10 @@ public class IdentifyCommand implements CommandHandler<IdentifyMessage> {
 
         byte[] totp = client.generateTOTP();
 
-        log.debug("EMAIL {} TOTP {}", message.getEmail(), DatatypeConverter.printHexBinary(totp).toLowerCase());
+        log.debug("EMAIL {} TOTP {}", message.getEmail(), Hex.toHexString(totp));
 
         DebugMessage debug = new DebugMessage();
-        debug.setData(DatatypeConverter.printHexBinary(totp).toLowerCase());
+        debug.setData(Hex.toHexString(totp));
 
         client.setEmail(message.getEmail());
         client.sendMessage(debug);

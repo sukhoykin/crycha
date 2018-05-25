@@ -81,6 +81,16 @@ public class ServiceEndpoint extends CommandDispatcher implements ServiceDomain 
         }
     }
 
+    @Override
+    public void onAuthenticated(ClientSession client) {
+
+        client = clients.put(client.getEmail(), client);
+
+        if (client != null) {
+            closeClient(client, ClientCloseCode.DUPLICATE_AUTHENTICATION);
+        }
+    }
+
     private void closeClient(ClientSession client, CloseCode closeCode) {
 
         Session session = client.getSession();
@@ -119,16 +129,6 @@ public class ServiceEndpoint extends CommandDispatcher implements ServiceDomain 
 
         if (client.getEmail() != null) {
             clients.remove(client.getEmail(), client);
-        }
-    }
-
-    @Override
-    public void onAuthenticated(ClientSession client) {
-
-        client = clients.put(client.getEmail(), client);
-
-        if (client != null) {
-            closeClient(client, ClientCloseCode.DUPLICATE_AUTHENTICATION);
         }
     }
 

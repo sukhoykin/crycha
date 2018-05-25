@@ -4,6 +4,10 @@ function ServerSession(url) {
 
   var self = this;
 
+  window.addEventListener("beforeunload", function(event) {
+    self.close();
+  });
+
   var hashjs = Cryptic.hashjs;
   var aesjs = Cryptic.aesjs;
 
@@ -23,10 +27,6 @@ function ServerSession(url) {
   socket.onmessage = onMessage;
   socket.onerror = onError;
   socket.onclose = onClose;
-
-  window.addEventListener("beforeunload", function(event) {
-    self.close();
-  });
 
   function onOpen() {
     self.onOpen();
@@ -189,8 +189,9 @@ function ServerSession(url) {
     sha256.update(message);
 
     var signature = dsaKeyPair.sign(sha256.digest());
+    signature = aesjs.utils.hex.fromBytes(signature.toDER());
 
-    return aesjs.utils.hex.fromBytes(signature.toDER());
+    return signature;
   }
 
   function verify(message, signature) {

@@ -8,7 +8,6 @@ import name.sukhoykin.cryptic.ClientCloseCode;
 import name.sukhoykin.cryptic.ClientSession;
 import name.sukhoykin.cryptic.CommandDispatcher;
 import name.sukhoykin.cryptic.CommandHandler;
-import name.sukhoykin.cryptic.CommandMessage;
 import name.sukhoykin.cryptic.MessageDecoder;
 import name.sukhoykin.cryptic.ServiceDomain;
 import name.sukhoykin.cryptic.exception.CommandException;
@@ -31,13 +30,12 @@ public class EnvelopeCommand extends CommandDispatcher implements CommandHandler
 
         payload = client.decryptPayload(payload);
 
-        CommandMessage commandMessage;
         try {
-            commandMessage = decoder.decode(new String(payload));
+
+            dispatchMessage(service, client, decoder.decode(new String(payload)));
+
         } catch (DecodeException e) {
             throw new CommandException(e);
         }
-
-        dispatchMessage(service, client, commandMessage);
     }
 }
