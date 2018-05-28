@@ -14,7 +14,7 @@ public class CommandDispatcher {
         handlers.put(classOfMessage, handler);
     }
 
-    public <T extends CommandMessage> void dispatchMessage(SecureSession session, T message) throws CommandException {
+    public <T extends CommandMessage> void dispatchMessage(ServiceSession session, T message) throws CommandException {
 
         @SuppressWarnings("unchecked")
         CommandHandler<T> handler = (CommandHandler<T>) handlers.get(message.getClass());

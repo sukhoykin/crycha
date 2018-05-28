@@ -6,9 +6,13 @@ public class ProtocolException extends CommandException {
 
     private CloseCode closeCode;
 
-    public ProtocolException(CloseCode closeCode) {
-        super(closeCode.toString());
+    public ProtocolException(CloseCode closeCode, String message) {
+        super(message);
         this.closeCode = closeCode;
+    }
+
+    public ProtocolException(CloseCode closeCode) {
+        this(closeCode, closeCode.toString());
     }
 
     public CloseCode getCloseCode() {

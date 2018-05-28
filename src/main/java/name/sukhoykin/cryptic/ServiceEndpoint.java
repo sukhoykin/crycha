@@ -17,6 +17,7 @@ import java.util.Arrays;
 import javax.crypto.KeyAgreement;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+import javax.websocket.CloseReason;
 import javax.websocket.DecodeException;
 import javax.websocket.EncodeException;
 import javax.websocket.EndpointConfig;
@@ -40,6 +41,8 @@ import name.sukhoykin.cryptic.command.AuthenticateHandler;
 import name.sukhoykin.cryptic.command.AuthenticateMessage;
 import name.sukhoykin.cryptic.command.AuthorizeHandler;
 import name.sukhoykin.cryptic.command.AuthorizeMessage;
+import name.sukhoykin.cryptic.command.CloseHandler;
+import name.sukhoykin.cryptic.command.CloseMessage;
 import name.sukhoykin.cryptic.command.DebugMessage;
 import name.sukhoykin.cryptic.command.IdentifyHandler;
 import name.sukhoykin.cryptic.command.IdentifyMessage;
@@ -50,9 +53,9 @@ import name.sukhoykin.cryptic.exception.CryptoException;
 import name.sukhoykin.cryptic.exception.ProtocolException;
 
 @ServerEndpoint(value = "/api", encoders = { MessageEncoder.class }, decoders = { MessageDecoder.class })
-public final class ServerSession extends CommandDispatcher implements SecureSession {
+public final class ServiceEndpoint extends CommandDispatcher implements ServiceSession {
 
-    private static final Logger log = LoggerFactory.getLogger(ServerSession.class);
+    private static final Logger log = LoggerFactory.getLogger(ServiceEndpoint.class);
 
     public static final int TOTP_VALIDITY_MINUTES = 5;
     public static final String TOTP_ALGORITHM = "HmacMD5";
@@ -78,7 +81,7 @@ public final class ServerSession extends CommandDispatcher implements SecureSess
     private MessageCipher cipher;
     private MessageSigner signer;
 
-    public ServerSession() {
+    public ServiceEndpoint() {
         new SecureRandom().nextBytes(randomSecret);
     }
 
@@ -103,55 +106,10 @@ public final class ServerSession extends CommandDispatcher implements SecureSess
             dispatchMessage(this, message);
 
         } catch (ProtocolException e) {
-            close(new CloseReason(e.getCloseCode()));
+            close(new CloseReason(e.getCloseCode(), e.getMessage()));
 
         } catch (CommandException e) {
-            close(new CloseReason(CloseCode.SERVER_ERROR));
-        }
-    }
-
-    @OnError
-    public void onError(Throwable error) {
-
-        if (error instanceof DecodeException) {
-
-            Throwable cause = error.getCause();
-            log.error("#{} {}", session.getId(), error.getMessage());
-
-            if (cause != null) {
-
-                try {
-
-                    throw cause;
-
-                } catch (ProtocolException e) {
-                    close(new CloseReason(e.getCloseCode()));
-
-                } catch (CryptoException e) {
-                    close(new CloseReason(CloseCode.SERVER_ERROR));
-
-                } catch (Throwable e) {
-                    close(new CloseReason(CloseCode.CLIENT_ERROR, error.getMessage()));
-                }
-
-            } else {
-                close(new CloseReason(CloseCode.SERVER_ERROR));
-            }
-
-        } else {
-            log.error("#{} {}", session.getId(), error.getMessage(), error);
-            close(new CloseReason(CloseCode.SERVER_ERROR));
-        }
-    }
-
-    @OnClose
-    public void onClose(javax.websocket.CloseReason reason) {
-
-        if (reason.getCloseCode().getCode() < 4000) {
-            log.debug("#{} Disconnected", session.getId());
-        } else {
-            log.error("#{} Disconnected {} {}",
-                    new Object[] { session.getId(), reason.getCloseCode().getCode(), reason.getReasonPhrase() });
+            close(new CloseReason(CloseCode.SERVER_ERROR, CloseCode.SERVER_ERROR.toString()));
         }
     }
 
@@ -167,6 +125,7 @@ public final class ServerSession extends CommandDispatcher implements SecureSess
         removeMessageHandler(IdentifyMessage.class);
         addMessageHandler(AuthenticateMessage.class, new AuthenticateHandler());
 
+        /** TODO: remove debug message */
         byte[] TOTP = generateTOTP();
 
         try {
@@ -193,8 +152,8 @@ public final class ServerSession extends CommandDispatcher implements SecureSess
 
         try {
 
-            clientDh = decodePublicKey(ServerSession.KEY_EXCHANGE_ALGORITHM, dh);
-            clientDsa = decodePublicKey(ServerSession.SIGNATURE_ALGORITHM, dsa);
+            clientDh = decodePublicKey(ServiceEndpoint.KEY_EXCHANGE_ALGORITHM, dh);
+            clientDsa = decodePublicKey(ServiceEndpoint.SIGNATURE_ALGORITHM, dsa);
 
         } catch (CryptoException e) {
             if (e.getCause() instanceof InvalidKeySpecException) {
@@ -241,7 +200,7 @@ public final class ServerSession extends CommandDispatcher implements SecureSess
             message.setSignature(signature);
 
             try {
-                session.getBasicRemote().sendObject(new DebugMessage(TOTP));
+                session.getBasicRemote().sendObject(message);
             } catch (IOException | EncodeException e) {
                 throw new CommandException(e);
             }
@@ -257,6 +216,7 @@ public final class ServerSession extends CommandDispatcher implements SecureSess
 
         addMessageHandler(AuthorizeMessage.class, new AuthorizeHandler());
         addMessageHandler(ProhibitMessage.class, new ProhibitHandler());
+        addMessageHandler(CloseMessage.class, new CloseHandler());
     }
 
     @Override
@@ -305,6 +265,52 @@ public final class ServerSession extends CommandDispatcher implements SecureSess
         }
     }
 
+    @OnError
+    public void onError(Throwable error) {
+
+        if (error instanceof DecodeException) {
+
+            Throwable cause = error.getCause();
+            log.error("#{} {}", session.getId(), error.getMessage());
+
+            if (cause != null) {
+
+                try {
+                    throw cause;
+                } catch (ProtocolException e) {
+                    close(new CloseReason(e.getCloseCode(), e.getMessage()));
+                } catch (CryptoException e) {
+                    close(new CloseReason(CloseCode.SERVER_ERROR, CloseCode.SERVER_ERROR.toString()));
+                } catch (Throwable e) {
+                    close(new CloseReason(CloseCode.CLIENT_ERROR, error.getMessage()));
+                }
+
+            } else {
+                close(new CloseReason(CloseCode.SERVER_ERROR, CloseCode.SERVER_ERROR.toString()));
+            }
+
+        } else {
+            log.error("#{} {}", session.getId(), error.getMessage(), error);
+            close(new CloseReason(CloseCode.SERVER_ERROR, CloseCode.SERVER_ERROR.toString()));
+        }
+    }
+
+    @OnClose
+    public void onClose(CloseReason reason) {
+
+        CloseMessage message = new CloseMessage();
+        message.setEmail(email);
+
+        onMessage(message);
+
+        if (reason.getCloseCode().getCode() < 4000) {
+            log.debug("#{} Disconnected", session.getId());
+        } else {
+            log.error("#{} Disconnected {} {}",
+                    new Object[] { session.getId(), reason.getCloseCode().getCode(), reason.getReasonPhrase() });
+        }
+    }
+
     private byte[] generateTOTP() throws CryptoException {
 
         SecretKeySpec secretKeySpec = new SecretKeySpec(randomSecret, TOTP_ALGORITHM);
@@ -331,8 +337,8 @@ public final class ServerSession extends CommandDispatcher implements SecureSess
 
             KeyFactory kf = KeyFactory.getInstance(algorithm, BouncyCastleProvider.PROVIDER_NAME);
 
-            ECPoint point = ServerSession.CURVE_25519_PARAMETER_SPEC.getCurve().decodePoint(key);
-            ECPublicKeySpec keySpec = new ECPublicKeySpec(point, ServerSession.CURVE_25519_PARAMETER_SPEC);
+            ECPoint point = ServiceEndpoint.CURVE_25519_PARAMETER_SPEC.getCurve().decodePoint(key);
+            ECPublicKeySpec keySpec = new ECPublicKeySpec(point, ServiceEndpoint.CURVE_25519_PARAMETER_SPEC);
 
             return kf.generatePublic(keySpec);
 

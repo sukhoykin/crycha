@@ -4,5 +4,5 @@ import name.sukhoykin.cryptic.exception.CommandException;
 
 public interface CommandHandler<T> {
 
-    public void onMessage(SecureSession session, T message) throws CommandException;
+    public void onMessage(ServiceSession session, T message) throws CommandException;
 }

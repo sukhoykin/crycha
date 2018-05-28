@@ -2,9 +2,11 @@ package name.sukhoykin.cryptic;
 
 import java.security.PublicKey;
 
+import javax.websocket.CloseReason;
+
 import name.sukhoykin.cryptic.exception.CommandException;
 
-public interface SecureSession {
+public interface ServiceSession {
 
     public byte[] identify(String email) throws CommandException;
 

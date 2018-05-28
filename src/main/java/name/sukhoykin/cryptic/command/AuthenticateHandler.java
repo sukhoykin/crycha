@@ -1,13 +1,16 @@
 package name.sukhoykin.cryptic.command;
 
-import name.sukhoykin.cryptic.CommandHandler;
-import name.sukhoykin.cryptic.SecureSession;
+import javax.websocket.CloseReason;
+
+import name.sukhoykin.cryptic.CloseCode;
+import name.sukhoykin.cryptic.ServiceHandler;
+import name.sukhoykin.cryptic.ServiceSession;
 import name.sukhoykin.cryptic.exception.CommandException;
 
-public class AuthenticateHandler implements CommandHandler<AuthenticateMessage> {
+public class AuthenticateHandler extends ServiceHandler<AuthenticateMessage> {
 
     @Override
-    public void onMessage(SecureSession session, AuthenticateMessage message) throws CommandException {
+    public void onMessage(ServiceSession session, AuthenticateMessage message) throws CommandException {
 
         byte[] dh = message.getDh();
         byte[] dsa = message.getDsa();
@@ -15,10 +18,12 @@ public class AuthenticateHandler implements CommandHandler<AuthenticateMessage> 
 
         session.authenticate(dh, dsa, signature);
 
-        // session = getSessions().put(session.getEmail(), session);
-        //
-        // if (session != null) {
-        // session.close(new CloseReason(CloseCode.DUPLICATE_AUTHENTICATION));
-        // }
+        session = getClients().put(session.getEmail(), session);
+
+        if (session != null) {
+
+            CloseCode closeCode = CloseCode.DUPLICATE_AUTHENTICATION;
+            session.close(new CloseReason(closeCode, closeCode.toString()));
+        }
     }
 }

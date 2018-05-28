@@ -6,7 +6,6 @@ import javax.websocket.EndpointConfig;
 
 import com.google.gson.Gson;
 
-import name.sukhoykin.cryptic.command.AuthenticateMessage;
 import name.sukhoykin.cryptic.command.EnvelopeMessage;
 import name.sukhoykin.cryptic.exception.CryptoException;
 
@@ -26,7 +25,7 @@ public class MessageEncoder implements Encoder.Text<CommandMessage> {
         MessageCipher cipher = (MessageCipher) config.getUserProperties().get("cipher");
         MessageSigner signer = (MessageSigner) config.getUserProperties().get("signer");
 
-        if (cipher != null && signer != null && !(message instanceof AuthenticateMessage)) {
+        if (cipher != null && signer != null) {
 
             try {
 
