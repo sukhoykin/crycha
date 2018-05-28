@@ -16,9 +16,9 @@ grunt
 
 Communication protocol include three security and functionality tiers. Each tier has own TLS-encryption and nested in previous:
 
-* Authentication protocol encrypted within [secured](https://en.wikipedia.org/wiki/Transport_Layer_Security) WebSocket [HTTPS](https://en.wikipedia.org/wiki/HTTPS) connection.
-* Authorization and delivery protocol encrypted with hybrid client-server cipher suite (ECDHE-ECDSA-AES). 
-* Messaging protocol encrypted with hybrid client-client cipher suite (ECDHE-ECDSA-AES). 
+* Authentication encrypted within [secured](https://en.wikipedia.org/wiki/Transport_Layer_Security) WebSocket [HTTPS](https://en.wikipedia.org/wiki/HTTPS) connection.
+* Authorization and delivery encrypted with hybrid client-server cipher suite (ECDHE-ECDSA-AES). 
+* Messaging encrypted with hybrid client-client cipher suite (ECDHE-ECDSA-AES). 
 
 ## Authentication
 
@@ -233,27 +233,40 @@ IV = truncate(DSApriv.own x DSApub.remote)
 
 **Client**
 
-* Encrypt `message` data with `encrypt` cipher and calculate signature `Smessage`.
-* Send **message command** with recipient `email` address, encrypted message and signature:
+* Encrypt `payload` data with `encrypt` cipher and calculate signature `Spayload`.
+* Send **deliver command** with recipient `email` address, encrypted data and signature:
 
 ```javascript
 {
-  command: 'message',
+  command: 'deliver',
   email: '{email}',
-  message: '{message}',
-  signature: '{Smessage}'
+  payload: '{payload}',
+  signature: '{Spayload}'
 }
 ```
 
 **Server**
 
-* If recipient authenticated and authorized then route to him **message command** with originator `email`:
+* If recipient authenticated and authorized then route him **deliver command** with originator `email`:
 
 ```javascript
 {
   command: 'message',
   email: '{email}',
-  message: '{message}',
-  signature: '{Smessage}'
+  payload: '{payload}',
+  signature: '{Spayload}'
+}
+```
+
+## Presence
+
+**Close event**
+
+* If some client is disconnected from server, all clients authorized him receive **close message** with his `email`:
+
+```javascript
+{
+  command: 'close',
+  email: '{email}'
 }
 ```
