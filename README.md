@@ -14,6 +14,12 @@ grunt
 
 # Protocol specification
 
+* [Authentication](#authentication)
+* [Authorization](#authorization)
+* [Prohibition](#prohibition)
+* [Messaging](#messaging)
+* [Presence](#presence)
+
 Communication protocol include three security and functionality tiers. Each tier has own TLS-encryption and nested in previous:
 
 * Authentication encrypted within [secured](https://en.wikipedia.org/wiki/Transport_Layer_Security) WebSocket [HTTPS](https://en.wikipedia.org/wiki/HTTPS) connection.
