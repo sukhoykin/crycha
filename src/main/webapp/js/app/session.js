@@ -1,6 +1,5 @@
 'use strict';
 
-//ClientSession
 function ServerSession(url) {
 
   var self = this;
@@ -14,8 +13,8 @@ function ServerSession(url) {
 
   var curve = new Cryptic.elliptic.ec(Curve25519.curveName);
 
-  var dhKeyPair = curve.genKeyPair();
-  var dsaKeyPair = curve.genKeyPair();
+  var clientDh = curve.genKeyPair();
+  var clientDsa = curve.genKeyPair();
 
   var TOTP;
   var aesEncrypt;
@@ -78,12 +77,12 @@ function ServerSession(url) {
         return;
       }
 
-      var sharedSecret = dhKeyPair.derive(dh.getPublic());
+      var sharedSecret = clientDh.derive(dh.getPublic());
 
       var sha256 = hashjs.sha256();
       sha256.update(sharedSecret.toArray());
       sha256.update(dh.getPublic().encode());
-      sha256.update(dhKeyPair.getPublic().encode());
+      sha256.update(clientDh.getPublic().encode());
 
       var sharedSecret = sha256.digest();
       var iv = aesjs.utils.hex.toBytes(TOTP);
@@ -189,7 +188,7 @@ function ServerSession(url) {
     var sha256 = hashjs.sha256();
     sha256.update(message);
 
-    var signature = dsaKeyPair.sign(sha256.digest());
+    var signature = clientDsa.sign(sha256.digest());
     signature = aesjs.utils.hex.fromBytes(signature.toDER());
 
     return signature;
@@ -225,9 +224,9 @@ function ServerSession(url) {
 
     TOTP = totp;
 
-    var dh = dhKeyPair.getPublic().encodeCompressed('hex');
-    var dsa = dsaKeyPair.getPublic().encodeCompressed('hex');
-    var signature = signPublicKeys(dhKeyPair.getPublic(), dsaKeyPair.getPublic());
+    var dh = clientDh.getPublic().encodeCompressed('hex');
+    var dsa = clientDsa.getPublic().encodeCompressed('hex');
+    var signature = signPublicKeys(clientDh.getPublic(), clientDsa.getPublic());
 
     sendMessage({
       command : 'authenticate',

@@ -8,8 +8,9 @@ public class DebugMessage extends CommandMessage {
 
     private String data;
 
-    public DebugMessage() {
+    public DebugMessage(byte[] data) {
         super("debug");
+        setData(data);
     }
 
     public void setData(byte[] data) {
