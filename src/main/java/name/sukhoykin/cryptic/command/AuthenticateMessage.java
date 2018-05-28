@@ -1,5 +1,7 @@
 package name.sukhoykin.cryptic.command;
 
+import org.bouncycastle.util.encoders.Hex;
+
 import name.sukhoykin.cryptic.CommandMessage;
 
 public class AuthenticateMessage extends CommandMessage {
@@ -14,27 +16,27 @@ public class AuthenticateMessage extends CommandMessage {
         super(NAME);
     }
 
-    public void setDh(String dh) {
-        this.dh = dh;
+    public void setDh(byte[] dh) {
+        this.dh = Hex.toHexString(dh);
     }
 
-    public String getDh() {
-        return dh;
+    public byte[] getDh() {
+        return Hex.decode(dh);
     }
 
-    public void setDsa(String dsa) {
-        this.dsa = dsa;
+    public void setDsa(byte[] dsa) {
+        this.dsa = Hex.toHexString(dsa);
     }
 
-    public String getDsa() {
-        return dsa;
+    public byte[] getDsa() {
+        return Hex.decode(dsa);
     }
 
-    public void setSignature(String signature) {
-        this.signature = signature;
+    public void setSignature(byte[] signature) {
+        this.signature = Hex.toHexString(signature);
     }
 
-    public String getSignature() {
-        return signature;
+    public byte[] getSignature() {
+        return Hex.decode(signature);
     }
 }

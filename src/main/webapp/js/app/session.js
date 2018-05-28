@@ -1,5 +1,6 @@
 'use strict';
 
+//ClientSession
 function ServerSession(url) {
 
   var self = this;
@@ -19,7 +20,7 @@ function ServerSession(url) {
   var TOTP;
   var aesEncrypt;
   var aesDecrypt;
-  var dsaServerKeyPair;
+  var serverDsa;
 
   var socket = new WebSocket(url);
 
@@ -87,7 +88,7 @@ function ServerSession(url) {
       var sharedSecret = sha256.digest();
       var iv = aesjs.utils.hex.toBytes(TOTP);
 
-      dsaServerKeyPair = dsa;
+      serverDsa = dsa;
 
       aesEncrypt = new aesjs.ModeOfOperation.cbc(sharedSecret, iv);
       aesDecrypt = new aesjs.ModeOfOperation.cbc(sharedSecret, iv);
@@ -201,7 +202,7 @@ function ServerSession(url) {
     var sha256 = hashjs.sha256();
     sha256.update(message);
 
-    return dsaKey.verify(sha256.digest(), signature);
+    return serverDsa.verify(sha256.digest(), signature);
   }
 
   self.onOpen = function() {

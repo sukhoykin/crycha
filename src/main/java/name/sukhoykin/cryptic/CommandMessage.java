@@ -1,10 +1,6 @@
 package name.sukhoykin.cryptic;
 
-import com.google.gson.Gson;
-
 abstract public class CommandMessage {
-
-    private final transient Gson gson = new Gson();
 
     private String command;
 
@@ -14,10 +10,5 @@ abstract public class CommandMessage {
 
     public String getCommand() {
         return command;
-    }
-
-    @Override
-    public String toString() {
-        return gson.toJson(this);
     }
 }

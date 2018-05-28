@@ -1,5 +1,7 @@
 package name.sukhoykin.cryptic.command;
 
+import org.bouncycastle.util.encoders.Hex;
+
 import name.sukhoykin.cryptic.CommandMessage;
 
 public class DebugMessage extends CommandMessage {
@@ -10,11 +12,11 @@ public class DebugMessage extends CommandMessage {
         super("debug");
     }
 
-    public void setData(String data) {
-        this.data = data;
+    public void setData(byte[] data) {
+        this.data = Hex.toHexString(data);
     }
 
-    public String getData() {
-        return data;
+    public byte[] getData() {
+        return Hex.decode(data);
     }
 }

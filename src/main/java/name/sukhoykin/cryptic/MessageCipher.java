@@ -16,17 +16,18 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import name.sukhoykin.cryptic.exception.CryptoException;
 
-public class ClientCipher {
+public class MessageCipher {
 
     private final String CIPHER_ALGORITHM = "AES";
     private final String CIPHER_MODE = "AES/CBC/PKCS7PADDING";
 
-    private SecretKeySpec secretKey;
-    private Cipher encrypt, decrypt;
+    private final SecretKeySpec secretKey;
+    private final Cipher encrypt, decrypt;
+
     private byte[] encryptIV = new byte[16];
     private byte[] decryptIV = new byte[16];
 
-    public ClientCipher(byte[] sharedSecret, byte[] iv) throws CryptoException {
+    public MessageCipher(byte[] sharedSecret, byte[] iv) throws CryptoException {
 
         secretKey = new SecretKeySpec(sharedSecret, CIPHER_ALGORITHM);
 

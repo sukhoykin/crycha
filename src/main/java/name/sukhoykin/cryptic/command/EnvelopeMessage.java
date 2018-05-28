@@ -1,5 +1,7 @@
 package name.sukhoykin.cryptic.command;
 
+import org.bouncycastle.util.encoders.Hex;
+
 import name.sukhoykin.cryptic.CommandMessage;
 
 public class EnvelopeMessage extends CommandMessage {
@@ -13,19 +15,19 @@ public class EnvelopeMessage extends CommandMessage {
         super(NAME);
     }
 
-    public void setPayload(String payload) {
-        this.payload = payload;
+    public void setPayload(byte[] payload) {
+        this.payload = Hex.toHexString(payload);
     }
 
-    public String getPayload() {
-        return payload;
+    public byte[] getPayload() {
+        return Hex.decode(payload);
     }
 
-    public void setSignature(String signature) {
-        this.signature = signature;
+    public void setSignature(byte[] signature) {
+        this.signature = Hex.toHexString(signature);
     }
 
-    public String getSignature() {
-        return signature;
+    public byte[] getSignature() {
+        return Hex.decode(signature);
     }
 }
