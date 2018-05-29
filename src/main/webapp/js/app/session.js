@@ -42,7 +42,7 @@ function ServiceSession(url) {
 
     } catch (e) {
       console.error('%s %s: %s', e.name, e.message, event.data);
-      socket.close(CrypticCloseCode.SERVER_INVALID_COMMAND, e.message);
+      self.close(CrypticCloseCode.SERVER_INVALID_COMMAND, e.message);
       return;
     }
 
@@ -66,14 +66,14 @@ function ServiceSession(url) {
 
       } catch (e) {
         console.error('%s %s', e.name, e.message);
-        socket.close(CrypticCloseCode.SERVER_INVALID_KEY, e.message);
+        self.close(CrypticCloseCode.SERVER_INVALID_KEY, e.message);
         return;
       }
 
       var signature = signPublicKeys(dh.getPublic(), dsa.getPublic());
 
       if (signature !== message.signature) {
-        socket.close(CrypticCloseCode.SERVER_INVALID_SIGNATURE);
+        self.close(CrypticCloseCode.SERVER_INVALID_SIGNATURE);
         return;
       }
 
@@ -100,7 +100,7 @@ function ServiceSession(url) {
     case 'envelope':
 
       if (!verify(message.payload, message.signature)) {
-        socket.close(CrypticCloseCode.SERVER_INVALID_SIGNATURE);
+        self.close(CrypticCloseCode.SERVER_INVALID_SIGNATURE);
         return;
       }
 
@@ -112,7 +112,7 @@ function ServiceSession(url) {
 
     default:
       console.error('Invalid command: %s', message.command);
-      socket.close(CrypticCloseCode.SERVER_INVALID_COMMAND, message.command);
+      self.close(CrypticCloseCode.SERVER_INVALID_COMMAND, message.command);
       return;
     }
   }
@@ -155,7 +155,7 @@ function ServiceSession(url) {
 
     } catch (e) {
       console.error(e);
-      socket.close(CrypticCloseCode.CLIENT_ERROR, e.message);
+      self.close(CrypticCloseCode.CLIENT_ERROR, e.message);
     }
   }
 
@@ -247,12 +247,17 @@ function ServiceSession(url) {
   self.sendMessage = function(message) {
     message = 'Secure session is not established';
     console.error(message);
-    socket.close(CrypticCloseCode.CLIENT_ERROR, message);
+    self.close(CrypticCloseCode.CLIENT_ERROR, message);
   }
 
-  self.close = function() {
-    socket.onclose = function() {
+  self.close = function(closeCode, closeReason) {
+
+    if (closeCode == undefined) {
+      socket.onclose = function() {
+      }
+      socket.close();
+    } else {
+      socket.close(closeCode, closeReason);
     }
-    socket.close();
   }
 }

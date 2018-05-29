@@ -44,6 +44,8 @@ import name.sukhoykin.cryptic.command.AuthorizeMessage;
 import name.sukhoykin.cryptic.command.CloseHandler;
 import name.sukhoykin.cryptic.command.CloseMessage;
 import name.sukhoykin.cryptic.command.DebugMessage;
+import name.sukhoykin.cryptic.command.DeliverHandler;
+import name.sukhoykin.cryptic.command.DeliverMessage;
 import name.sukhoykin.cryptic.command.IdentifyHandler;
 import name.sukhoykin.cryptic.command.IdentifyMessage;
 import name.sukhoykin.cryptic.command.ProhibitHandler;
@@ -216,6 +218,7 @@ public final class ServiceEndpoint extends CommandDispatcher implements ServiceS
 
         addMessageHandler(AuthorizeMessage.class, new AuthorizeHandler());
         addMessageHandler(ProhibitMessage.class, new ProhibitHandler());
+        addMessageHandler(DeliverMessage.class, new DeliverHandler());
         addMessageHandler(CloseMessage.class, new CloseHandler());
 
         log.debug("#{} Authenticated", session.getId());

@@ -26,8 +26,29 @@ function CrypticService(url) {
   }
 
   function onMessage(message) {
-    console.log('onMessage');
+
+    console.log('COMMAND');
     console.log(message);
+
+    switch (message.command) {
+
+    case 'authorize':
+      break;
+
+    case 'prohibit':
+      break;
+
+    case 'deliver':
+      break;
+
+    case 'close':
+      break;
+
+    default:
+      console.error('Invalid command: %s', message.command);
+      session.close(CrypticCloseCode.SERVER_INVALID_COMMAND, message.command);
+      return;
+    }
   }
 
   function onClose(event) {
