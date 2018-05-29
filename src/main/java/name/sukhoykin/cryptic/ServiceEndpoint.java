@@ -99,18 +99,15 @@ public final class ServiceEndpoint extends CommandDispatcher implements ServiceS
     @OnMessage
     public void onMessage(CommandMessage message) {
 
-        if (session.isOpen()) {
+        try {
 
-            try {
+            dispatchMessage(this, message);
 
-                dispatchMessage(this, message);
+        } catch (ProtocolException e) {
+            close(new CloseReason(e.getCloseCode(), e.getMessage()));
 
-            } catch (ProtocolException e) {
-                close(new CloseReason(e.getCloseCode(), e.getMessage()));
-
-            } catch (CommandException e) {
-                close(new CloseReason(CloseCode.SERVER_ERROR, CloseCode.SERVER_ERROR.toString()));
-            }
+        } catch (CommandException e) {
+            close(new CloseReason(CloseCode.SERVER_ERROR, CloseCode.SERVER_ERROR.toString()));
         }
     }
 

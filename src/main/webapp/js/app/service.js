@@ -38,6 +38,8 @@ function CrypticService(url) {
   }
   self.onAuthenticate = function() {
   }
+  self.onAuthorize = function(client) {
+  }
   self.onClose = function(event) {
   }
 
@@ -51,6 +53,13 @@ function CrypticService(url) {
 
   self.authenticate = function(totp) {
     session.authenticate(totp);
+  }
+
+  self.authorize = function(email) {
+    session.sendMessage({
+      command : 'authorize',
+      email : email
+    });
   }
 
   self.close = function() {

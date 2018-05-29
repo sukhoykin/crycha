@@ -11,8 +11,9 @@ service.onAuthenticate = function() {
   console.log('onAuthenticate');
 }
 
-service.onAuthorize = function(service) {
-  service.authorize(service);
+service.onAuthorize = function(client) {
+  console.log('onAuthorize');
+  service.authorize(client);
 }
 
 service.onClose = function(event) {
@@ -21,6 +22,7 @@ service.onClose = function(event) {
 
 function test() {
   service.authorize('b@example.com');
+  return 0;
 }
 
 function getParameterByName(name, url) {

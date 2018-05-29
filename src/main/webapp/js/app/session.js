@@ -108,6 +108,7 @@ function ServiceSession(url) {
       message = JSON.parse(message);
 
       self.onMessage(message);
+      break;
 
     default:
       console.error('Invalid command: %s', message.command);
