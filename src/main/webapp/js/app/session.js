@@ -1,6 +1,6 @@
 'use strict';
 
-function ServerSession(url) {
+function ServiceSession(url) {
 
   var self = this;
 
@@ -140,6 +140,10 @@ function ServerSession(url) {
         };
       }
 
+      if (socket.readyState != 1) {
+        throw new Error('Socket is not open');
+      }
+
       socket.send(JSON.stringify(message));
 
       console.log('SEND');
@@ -206,11 +210,11 @@ function ServerSession(url) {
 
   self.onOpen = function() {
   }
-  self.onClose = function(event) {
-  }
   self.onAuthenticate = function(event) {
   }
   self.onMessage = function(message) {
+  }
+  self.onClose = function(event) {
   }
 
   self.identify = function(email) {

@@ -5,9 +5,10 @@ import java.util.concurrent.ConcurrentMap;
 
 public abstract class ServiceHandler<T> implements CommandHandler<T> {
 
-    private static final ConcurrentMap<String, ServiceSession> clients = new ConcurrentHashMap<>();
-
-    public ConcurrentMap<String, ServiceSession> getClients() {
-        return clients;
+    private enum Domain {
+        INSTANCE;
+        private final ConcurrentMap<String, ServiceSession> clients = new ConcurrentHashMap<>();
     }
+
+    protected final ConcurrentMap<String, ServiceSession> clients = Domain.INSTANCE.clients;
 }

@@ -7,10 +7,6 @@ service.onOpen = function() {
   service.identify(getParameterByName('id') + '@example.com');
 }
 
-service.onDebug = function(data) {
-  service.authenticate(data);
-}
-
 service.onAuthenticate = function() {
   console.log('onAuthenticate');
 }

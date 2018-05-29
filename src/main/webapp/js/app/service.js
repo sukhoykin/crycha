@@ -8,7 +8,7 @@ function CrypticService(url) {
     url = 'wss://' + location.host + location.pathname + 'api';
   }
 
-  var session = new ServerSession(url);
+  var session = new ServiceSession(url);
 
   session.onOpen = onOpen;
   session.onAuthenticate = onAuthenticate;

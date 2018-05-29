@@ -1,10 +1,10 @@
 package name.sukhoykin.cryptic;
 
+import java.security.SignatureException;
+
 import javax.websocket.DecodeException;
 import javax.websocket.Decoder;
 import javax.websocket.EndpointConfig;
-
-import org.bouncycastle.util.encoders.Hex;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -50,8 +50,13 @@ public class MessageDecoder implements Decoder.Text<CommandMessage> {
 
                 EnvelopeMessage envelope = (EnvelopeMessage) message;
 
-                byte[] payload = Hex.decode(envelope.getPayload());
-                byte[] signature = Hex.decode(envelope.getSignature());
+                byte[] payload = envelope.getPayload();
+                byte[] signature = envelope.getSignature();
+
+                if (payload == null || signature == null) {
+                    throw new DecodeException(s, "Empty payload or signature",
+                            new ProtocolException(CloseCode.CLIENT_INVALID_COMMAND));
+                }
 
                 try {
 
@@ -63,7 +68,15 @@ public class MessageDecoder implements Decoder.Text<CommandMessage> {
                     payload = cipher.decrypt(payload);
 
                 } catch (CryptoException e) {
-                    throw new DecodeException(s, e.getMessage(), e);
+
+                    Throwable cause = e.getCause();
+
+                    if (cause instanceof SignatureException) {
+                        throw new DecodeException(s, cause.getMessage(),
+                                new ProtocolException(CloseCode.CLIENT_INVALID_SIGNATURE));
+                    } else {
+                        throw new DecodeException(s, e.getMessage(), e);
+                    }
                 }
 
                 message = gson.fromJson(new String(payload), CommandMessage.class);
@@ -72,7 +85,11 @@ public class MessageDecoder implements Decoder.Text<CommandMessage> {
             return message;
 
         } catch (JsonParseException e) {
-            throw new DecodeException(s, e.getMessage(), new ProtocolException(CloseCode.CLIENT_INVALID_COMMAND));
+
+            Throwable cause = e.getCause();
+            String message = cause != null ? cause.getMessage() : e.getMessage();
+
+            throw new DecodeException(s, message, new ProtocolException(CloseCode.CLIENT_INVALID_COMMAND));
         }
     }
 

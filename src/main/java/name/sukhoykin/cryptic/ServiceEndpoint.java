@@ -99,17 +99,18 @@ public final class ServiceEndpoint extends CommandDispatcher implements ServiceS
     @OnMessage
     public void onMessage(CommandMessage message) {
 
-        log.debug("#{} RECEIVE {}", session.getId(), message.getCommand());
+        if (session.isOpen()) {
 
-        try {
+            try {
 
-            dispatchMessage(this, message);
+                dispatchMessage(this, message);
 
-        } catch (ProtocolException e) {
-            close(new CloseReason(e.getCloseCode(), e.getMessage()));
+            } catch (ProtocolException e) {
+                close(new CloseReason(e.getCloseCode(), e.getMessage()));
 
-        } catch (CommandException e) {
-            close(new CloseReason(CloseCode.SERVER_ERROR, CloseCode.SERVER_ERROR.toString()));
+            } catch (CommandException e) {
+                close(new CloseReason(CloseCode.SERVER_ERROR, CloseCode.SERVER_ERROR.toString()));
+            }
         }
     }
 
@@ -124,6 +125,8 @@ public final class ServiceEndpoint extends CommandDispatcher implements ServiceS
 
         removeMessageHandler(IdentifyMessage.class);
         addMessageHandler(AuthenticateMessage.class, new AuthenticateHandler());
+
+        log.debug("#{} Identified {}", session.getId(), email);
 
         /** TODO: remove debug message */
         byte[] TOTP = generateTOTP();
@@ -189,34 +192,36 @@ public final class ServiceEndpoint extends CommandDispatcher implements ServiceS
             cipher = new MessageCipher(sharedSecret, TOTP);
             signer = new MessageSigner(serverDsa.getPrivate(), clientDsa);
 
-            AuthenticateMessage message = new AuthenticateMessage();
-
-            dh = encodePublicKey(serverDh.getPublic(), true);
-            dsa = encodePublicKey(serverDsa.getPublic(), true);
-            signature = signPublicKeys(dh, dsa, TOTP);
-
-            message.setDh(dh);
-            message.setDsa(dsa);
-            message.setSignature(signature);
-
-            try {
-                session.getBasicRemote().sendObject(message);
-            } catch (IOException | EncodeException e) {
-                throw new CommandException(e);
-            }
-
-            config.getUserProperties().put("cipher", cipher);
-            config.getUserProperties().put("signer", signer);
-
         } catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidKeyException e) {
             throw new CryptoException(e);
         }
+
+        AuthenticateMessage message = new AuthenticateMessage();
+
+        dh = encodePublicKey(serverDh.getPublic(), true);
+        dsa = encodePublicKey(serverDsa.getPublic(), true);
+        signature = signPublicKeys(dh, dsa, TOTP);
+
+        message.setDh(dh);
+        message.setDsa(dsa);
+        message.setSignature(signature);
+
+        try {
+            session.getBasicRemote().sendObject(message);
+        } catch (IOException | EncodeException e) {
+            throw new CommandException(e);
+        }
+
+        config.getUserProperties().put("cipher", cipher);
+        config.getUserProperties().put("signer", signer);
 
         removeMessageHandler(AuthenticateMessage.class);
 
         addMessageHandler(AuthorizeMessage.class, new AuthorizeHandler());
         addMessageHandler(ProhibitMessage.class, new ProhibitHandler());
         addMessageHandler(CloseMessage.class, new CloseHandler());
+
+        log.debug("#{} Authenticated", session.getId());
     }
 
     @Override
@@ -242,14 +247,10 @@ public final class ServiceEndpoint extends CommandDispatcher implements ServiceS
         }
 
         try {
-
             session.getBasicRemote().sendObject(message);
-
         } catch (IOException | EncodeException e) {
             throw new CommandException(e);
         }
-
-        log.debug("#{} SEND {}", session.getId(), message.getCommand());
     }
 
     @Override
@@ -278,11 +279,11 @@ public final class ServiceEndpoint extends CommandDispatcher implements ServiceS
                 try {
                     throw cause;
                 } catch (ProtocolException e) {
-                    close(new CloseReason(e.getCloseCode(), e.getMessage()));
+                    close(new CloseReason(e.getCloseCode(), error.getMessage()));
                 } catch (CryptoException e) {
                     close(new CloseReason(CloseCode.SERVER_ERROR, CloseCode.SERVER_ERROR.toString()));
                 } catch (Throwable e) {
-                    close(new CloseReason(CloseCode.CLIENT_ERROR, error.getMessage()));
+                    close(new CloseReason(CloseCode.CLIENT_ERROR, cause.getMessage()));
                 }
 
             } else {

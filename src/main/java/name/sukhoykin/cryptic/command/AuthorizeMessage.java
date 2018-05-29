@@ -29,7 +29,7 @@ public class AuthorizeMessage extends CommandMessage {
     }
 
     public byte[] getDh() {
-        return Hex.decode(dh);
+        return dh != null ? Hex.decode(dh) : null;
     }
 
     public void setDsa(byte[] dsa) {
@@ -37,6 +37,6 @@ public class AuthorizeMessage extends CommandMessage {
     }
 
     public byte[] getDsa() {
-        return Hex.decode(dsa);
+        return dsa != null ? Hex.decode(dsa) : null;
     }
 }

@@ -20,7 +20,7 @@ public class EnvelopeMessage extends CommandMessage {
     }
 
     public byte[] getPayload() {
-        return Hex.decode(payload);
+        return payload != null ? Hex.decode(payload) : null;
     }
 
     public void setSignature(byte[] signature) {
@@ -28,6 +28,6 @@ public class EnvelopeMessage extends CommandMessage {
     }
 
     public byte[] getSignature() {
-        return Hex.decode(signature);
+        return signature != null ? Hex.decode(signature) : null;
     }
 }

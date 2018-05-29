@@ -6,6 +6,7 @@ import name.sukhoykin.cryptic.CloseCode;
 import name.sukhoykin.cryptic.ServiceHandler;
 import name.sukhoykin.cryptic.ServiceSession;
 import name.sukhoykin.cryptic.exception.CommandException;
+import name.sukhoykin.cryptic.exception.ProtocolException;
 
 public class AuthenticateHandler extends ServiceHandler<AuthenticateMessage> {
 
@@ -16,9 +17,12 @@ public class AuthenticateHandler extends ServiceHandler<AuthenticateMessage> {
         byte[] dsa = message.getDsa();
         byte[] signature = message.getSignature();
 
-        session.authenticate(dh, dsa, signature);
+        if (dh == null || dsa == null || signature == null) {
+            throw new ProtocolException(CloseCode.CLIENT_INVALID_COMMAND, "Empty key or signature");
+        }
 
-        session = getClients().put(session.getEmail(), session);
+        session.authenticate(dh, dsa, signature);
+        session = clients.put(session.getEmail(), session);
 
         if (session != null) {
 

@@ -13,7 +13,7 @@ public class AuthorizeHandler extends ServiceHandler<AuthorizeMessage> {
     @Override
     public void onMessage(ServiceSession originator, AuthorizeMessage message) throws CommandException {
 
-        ServiceSession recipient = getClients().get(message.getEmail());
+        ServiceSession recipient = clients.get(message.getEmail());
 
         if (recipient != null) {
 
