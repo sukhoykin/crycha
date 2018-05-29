@@ -62,6 +62,13 @@ function CrypticService(url) {
     });
   }
 
+  self.prohibit = function(email) {
+    session.sendMessage({
+      command : 'prohibit',
+      email : email
+    });
+  }
+
   self.close = function() {
     session.close();
   }

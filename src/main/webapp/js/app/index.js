@@ -25,6 +25,11 @@ function authorize(id) {
   return 0;
 }
 
+function prohibit(id) {
+  service.prohibit(id + '@example.com');
+  return 0;
+}
+
 function getParameterByName(name, url) {
   if (!url)
     url = window.location.href;

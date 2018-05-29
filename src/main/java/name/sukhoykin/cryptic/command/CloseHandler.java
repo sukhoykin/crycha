@@ -17,19 +17,19 @@ public class CloseHandler extends ServiceHandler<CloseMessage> {
             session.close(new CloseReason(CloseReason.CloseCodes.NORMAL_CLOSURE, "Thank you for using the service"));
         } else {
 
-            String email = session.getEmail();
+            String closeEmail = session.getEmail();
 
-            for (String clientEmail : authorization.remove(email)) {
+            for (String email : getAuthorizations().remove(closeEmail)) {
 
-                if (authorization.getOrDefault(clientEmail, defaultSet).remove(email)) {
+                if (getAuthorization(email).remove(closeEmail)) {
 
-                    ServiceSession client = clients.get(clientEmail);
+                    ServiceSession client = getClient(email);
 
                     if (client != null) {
 
                         try {
 
-                            client.sendMessage(new CloseMessage(email));
+                            client.sendMessage(new CloseMessage(closeEmail));
 
                         } catch (CommandException e) {
                             LoggerFactory.getLogger(CloseHandler.class).warn(
@@ -39,10 +39,10 @@ public class CloseHandler extends ServiceHandler<CloseMessage> {
                 }
             }
 
-            authorization.forEach((k, v) -> v.remove(email));
+            getAuthorizations().forEach((k, v) -> v.remove(closeEmail));
+            getClients().remove(closeEmail, session);
 
-            clients.remove(email, session);
-            LoggerFactory.getLogger(CloseHandler.class).debug("{} {}", clients.keySet(), authorization);
+            super.onMessage(session, message);
         }
     }
 }

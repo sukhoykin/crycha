@@ -14,10 +14,9 @@ public class AuthorizeHandler extends ServiceHandler<AuthorizeMessage> {
     @Override
     public void onMessage(ServiceSession session, AuthorizeMessage message) throws CommandException {
 
-        ServiceSession client = clients.get(message.getEmail());
+        ServiceSession client = getClient(message.getEmail());
 
-        if (client != null && !client.equals(session)
-                && authorization.get(session.getEmail()).add(message.getEmail())) {
+        if (client != null && !client.equals(session) && getAuthorization(session.getEmail()).add(message.getEmail())) {
 
             byte[] dh = encodePublicKey(session.getClientDh());
             byte[] dsa = encodePublicKey(session.getClientDsa());
@@ -32,11 +31,11 @@ public class AuthorizeHandler extends ServiceHandler<AuthorizeMessage> {
                 client.sendMessage(message);
 
             } catch (CommandException e) {
-                LoggerFactory.getLogger(CloseHandler.class).warn("Could not send authorize command to client {}: {}",
-                        client.getEmail(), e.getMessage());
+                LoggerFactory.getLogger(AuthorizeHandler.class)
+                        .warn("Could not send authorize command to client {}: {}", client.getEmail(), e.getMessage());
             }
 
-            LoggerFactory.getLogger(AuthorizeHandler.class).debug("{} {}", clients.keySet(), authorization);
+            super.onMessage(session, message);
         }
     }
 
