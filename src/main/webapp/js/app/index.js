@@ -20,8 +20,8 @@ service.onClose = function(event) {
   console.log('Disconnected %s %s', event.code, event.reason);
 }
 
-function test() {
-  service.authorize('b@example.com');
+function authorize(id) {
+  service.authorize(id + '@example.com');
   return 0;
 }
 

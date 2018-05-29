@@ -63,7 +63,7 @@ function CrypticService(url) {
   }
 
   self.close = function() {
-    server.close();
+    session.close();
   }
 }
 

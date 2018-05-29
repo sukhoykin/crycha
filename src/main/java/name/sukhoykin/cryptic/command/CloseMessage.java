@@ -12,6 +12,11 @@ public class CloseMessage extends CommandMessage {
         super(NAME);
     }
 
+    public CloseMessage(String email) {
+        super(NAME);
+        this.email = email;
+    }
+
     public void setEmail(String email) {
         this.email = email;
     }

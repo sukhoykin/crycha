@@ -18,6 +18,8 @@ public interface ServiceSession {
 
     public PublicKey getClientDsa();
 
+    public boolean isOpen();
+
     public void sendMessage(CommandMessage message) throws CommandException;
 
     public void close(CloseReason reason);

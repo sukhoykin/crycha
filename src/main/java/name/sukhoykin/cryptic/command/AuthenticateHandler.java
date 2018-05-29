@@ -1,6 +1,10 @@
 package name.sukhoykin.cryptic.command;
 
+import java.util.concurrent.ConcurrentHashMap;
+
 import javax.websocket.CloseReason;
+
+import org.slf4j.LoggerFactory;
 
 import name.sukhoykin.cryptic.CloseCode;
 import name.sukhoykin.cryptic.ServiceHandler;
@@ -22,12 +26,17 @@ public class AuthenticateHandler extends ServiceHandler<AuthenticateMessage> {
         }
 
         session.authenticate(dh, dsa, signature);
-        session = clients.put(session.getEmail(), session);
+
+        String email = session.getEmail();
+
+        session = clients.put(email, session);
 
         if (session != null) {
-
             CloseCode closeCode = CloseCode.DUPLICATE_AUTHENTICATION;
             session.close(new CloseReason(closeCode, closeCode.toString()));
         }
+
+        authorization.put(email, ConcurrentHashMap.newKeySet());
+        LoggerFactory.getLogger(AuthenticateHandler.class).debug("{} {}", clients.keySet(), authorization);
     }
 }

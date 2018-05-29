@@ -3,6 +3,7 @@ package name.sukhoykin.cryptic.command;
 import java.security.PublicKey;
 
 import org.bouncycastle.jce.interfaces.ECPublicKey;
+import org.slf4j.LoggerFactory;
 
 import name.sukhoykin.cryptic.ServiceHandler;
 import name.sukhoykin.cryptic.ServiceSession;
@@ -11,21 +12,31 @@ import name.sukhoykin.cryptic.exception.CommandException;
 public class AuthorizeHandler extends ServiceHandler<AuthorizeMessage> {
 
     @Override
-    public void onMessage(ServiceSession originator, AuthorizeMessage message) throws CommandException {
+    public void onMessage(ServiceSession session, AuthorizeMessage message) throws CommandException {
 
-        ServiceSession recipient = clients.get(message.getEmail());
+        ServiceSession client = clients.get(message.getEmail());
 
-        if (recipient != null) {
+        if (client != null && !client.equals(session)
+                && authorization.get(session.getEmail()).add(message.getEmail())) {
 
-            byte[] dh = encodePublicKey(originator.getClientDh());
-            byte[] dsa = encodePublicKey(originator.getClientDsa());
+            byte[] dh = encodePublicKey(session.getClientDh());
+            byte[] dsa = encodePublicKey(session.getClientDsa());
 
             message = new AuthorizeMessage();
-            message.setEmail(originator.getEmail());
+            message.setEmail(session.getEmail());
             message.setDh(dh);
             message.setDsa(dsa);
 
-            recipient.sendMessage(message);
+            try {
+
+                client.sendMessage(message);
+
+            } catch (CommandException e) {
+                LoggerFactory.getLogger(CloseHandler.class).warn("Could not send authorize command to client {}: {}",
+                        client.getEmail(), e.getMessage());
+            }
+
+            LoggerFactory.getLogger(AuthorizeHandler.class).debug("{} {}", clients.keySet(), authorization);
         }
     }
 

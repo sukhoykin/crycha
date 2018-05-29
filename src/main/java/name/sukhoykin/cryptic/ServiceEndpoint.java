@@ -237,6 +237,11 @@ public final class ServiceEndpoint extends CommandDispatcher implements ServiceS
     }
 
     @Override
+    public boolean isOpen() {
+        return session.isOpen();
+    }
+
+    @Override
     public void sendMessage(CommandMessage message) throws CommandException {
 
         if (cipher == null) {
@@ -296,10 +301,7 @@ public final class ServiceEndpoint extends CommandDispatcher implements ServiceS
     @OnClose
     public void onClose(CloseReason reason) {
 
-        CloseMessage message = new CloseMessage();
-        message.setEmail(email);
-
-        onMessage(message);
+        onMessage(new CloseMessage());
 
         if (reason.getCloseCode().getCode() < 4000) {
             log.debug("#{} Disconnected", session.getId());

@@ -131,6 +131,9 @@ function ServiceSession(url) {
 
       if (aesEncrypt) {
 
+        console.log('COMMAND');
+        console.log(message);
+
         message = JSON.stringify(message);
         message = encrypt(message);
 
