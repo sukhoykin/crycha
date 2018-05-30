@@ -115,7 +115,7 @@ function ClientSession(session, email, originDh, originDsa) {
       command : 'deliver',
       email : email,
       payload : message,
-      signature : sign(message) + '23'
+      signature : sign(message)
     };
 
     session.sendMessage(message);
