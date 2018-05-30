@@ -61,7 +61,7 @@ function CrypticService(url) {
           self.onAuthorize(client);
 
         } else {
-          session.close(CrypticCloseCode.SERVER_INVALID_PROTOCOL, 'Already authorized');
+          session.close(CrypticCloseCode.SERVER_INVALID_PROTOCOL, 'Client already authorized');
           return;
         }
       }
@@ -71,6 +71,12 @@ function CrypticService(url) {
     case 'prohibit':
 
       var client = clients[message.email];
+
+      if (client === undefined) {
+        session.close(CrypticCloseCode.SERVER_INVALID_PROTOCOL, 'Client not authorized yet');
+        return;
+      }
+
       delete clients[message.email];
 
       self.onProhibit(client);
@@ -83,6 +89,12 @@ function CrypticService(url) {
     case 'close':
 
       var client = clients[message.email];
+
+      if (client === undefined) {
+        session.close(CrypticCloseCode.SERVER_INVALID_PROTOCOL, 'Client not authorized yet');
+        return;
+      }
+
       delete clients[message.email];
 
       self.onClose(client);
