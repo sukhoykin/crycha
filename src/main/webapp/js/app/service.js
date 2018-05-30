@@ -42,7 +42,7 @@ function CrypticService(url) {
 
       } catch (e) {
         console.error('%s %s', e.name, e.message);
-        self.close(CrypticCloseCode.SERVER_INVALID_KEY, e.message);
+        session.close(CrypticCloseCode.SERVER_INVALID_KEY, e.message);
         return;
       }
 
@@ -56,19 +56,37 @@ function CrypticService(url) {
       } else {
 
         if (!client.isAuthorized() && client.isOrigin()) {
+
           client.authorize(dh, dsa);
+          self.onAuthorize(client);
+
+        } else {
+          session.close(CrypticCloseCode.SERVER_INVALID_PROTOCOL, 'Already authorized');
+          return;
         }
       }
 
       break;
 
     case 'prohibit':
+
+      var client = clients[message.email];
+      delete clients[message.email];
+
+      self.onProhibit(client);
+
       break;
 
     case 'deliver':
       break;
 
     case 'close':
+
+      var client = clients[message.email];
+      delete clients[message.email];
+
+      self.onClose(client);
+
       break;
 
     default:
@@ -90,7 +108,7 @@ function CrypticService(url) {
   }
   self.onProhibit = function(client) {
   }
-  self.onClose = function(event) {
+  self.onClose = function(eventOrClient) {
   }
 
   self.getUrl = function() {
@@ -118,6 +136,7 @@ function CrypticService(url) {
 
       if (!client.isOrigin()) {
         client.authorize();
+        self.onAuthorize(client);
       }
 
     } else {

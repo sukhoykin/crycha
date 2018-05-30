@@ -13,11 +13,15 @@ service.onAuthenticate = function() {
 
 service.onAuthorize = function(client) {
   console.log('onAuthorize');
-  service.authorize(client);
 }
 
-service.onClose = function(event) {
-  console.log('Disconnected %s %s', event.code, event.reason);
+service.onClose = function(eventOrClient) {
+
+  if (eventOrClient instanceof ClientSession) {
+    console.log('onClose %s', eventOrClient.getEmail());
+  } else {
+    console.log('Disconnected %s %s', event.code, event.reason);
+  }
 }
 
 function authorize(id) {
