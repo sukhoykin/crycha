@@ -33,6 +33,33 @@ function CrypticService(url) {
     switch (message.command) {
 
     case 'authorize':
+
+      try {
+
+        var email = message.email;
+        var dh = Cryptic.curve.keyFromPublic(message.dh, "hex");
+        var dsa = Cryptic.curve.keyFromPublic(message.dsa, "hex");
+
+      } catch (e) {
+        console.error('%s %s', e.name, e.message);
+        self.close(CrypticCloseCode.SERVER_INVALID_KEY, e.message);
+        return;
+      }
+
+      var client = clients[email];
+
+      if (client === undefined) {
+
+        client = new ClientSession(session, email, dh, dsa);
+        clients[email] = client;
+
+      } else {
+
+        if (!client.isAuthorized() && client.isOrigin()) {
+          client.authorize(dh, dsa);
+        }
+      }
+
       break;
 
     case 'prohibit':
@@ -61,6 +88,8 @@ function CrypticService(url) {
   }
   self.onAuthorize = function(client) {
   }
+  self.onProhibit = function(client) {
+  }
   self.onClose = function(event) {
   }
 
@@ -77,6 +106,24 @@ function CrypticService(url) {
   }
 
   self.authorize = function(email) {
+
+    var client = clients[email];
+
+    if (client === undefined) {
+
+      client = new ClientSession(session, email);
+      clients[email] = client;
+
+    } else if (!client.isAuthorized()) {
+
+      if (!client.isOrigin()) {
+        client.authorize();
+      }
+
+    } else {
+      return;
+    }
+
     session.sendMessage({
       command : 'authorize',
       email : email
@@ -145,6 +192,8 @@ Cryptic.hashjs = require('hash.js');
 Cryptic.aesjs = require('aesjs');
 
 Curve25519.defineCurve(Cryptic.elliptic.curves, Cryptic.hashjs);
+
+Cryptic.curve = new Cryptic.elliptic.ec(Curve25519.curveName);
 
 function CrypticCloseCode() {
 }

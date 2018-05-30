@@ -1,8 +1,5 @@
 package name.sukhoykin.cryptic.command;
 
-import java.security.PublicKey;
-
-import org.bouncycastle.jce.interfaces.ECPublicKey;
 import org.slf4j.LoggerFactory;
 
 import name.sukhoykin.cryptic.ServiceHandler;
@@ -14,32 +11,31 @@ public class AuthorizeHandler extends ServiceHandler<AuthorizeMessage> {
     @Override
     public void onMessage(ServiceSession session, AuthorizeMessage message) throws CommandException {
 
-        ServiceSession client = getClient(message.getEmail());
+        String sessionEmail = session.getEmail();
+        String messageEmail = message.getEmail();
 
-        if (client != null && !client.equals(session) && getAuthorization(session.getEmail()).add(message.getEmail())) {
+        if (!sessionEmail.equals(messageEmail) && getAuthorization(sessionEmail).add(messageEmail)) {
 
-            byte[] dh = encodePublicKey(session.getClientDh());
-            byte[] dsa = encodePublicKey(session.getClientDsa());
+            ServiceSession client = getClient(messageEmail);
 
-            message = new AuthorizeMessage();
-            message.setEmail(session.getEmail());
-            message.setDh(dh);
-            message.setDsa(dsa);
+            if (client != null) {
 
-            try {
+                message = new AuthorizeMessage();
+                message.setEmail(sessionEmail);
+                message.setDh(encodePublicKey(session.getClientDh()));
+                message.setDsa(encodePublicKey(session.getClientDsa()));
 
-                client.sendMessage(message);
+                try {
 
-            } catch (CommandException e) {
-                LoggerFactory.getLogger(AuthorizeHandler.class)
-                        .warn("Could not send authorize command to client {}: {}", client.getEmail(), e.getMessage());
+                    client.sendMessage(message);
+
+                } catch (CommandException e) {
+                    LoggerFactory.getLogger(AuthorizeHandler.class).warn(
+                            "Could not send authorize command to client {}: {}", client.getEmail(), e.getMessage());
+                }
             }
 
             super.onMessage(session, message);
         }
-    }
-
-    private byte[] encodePublicKey(PublicKey key) {
-        return ((ECPublicKey) key).getQ().getEncoded(true);
     }
 }

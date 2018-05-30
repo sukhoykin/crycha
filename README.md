@@ -93,12 +93,14 @@ Skey = HMAC-SHA-256(TOTP, DHpub || DSApub)
 }
 ```
 
-* Create new session for this `email` and associate connection, client/server keys and `TOTP` as cipher initialization vector `IV` with the session.
+* Setup Client-Server TLS.
+* If authorization requests exist, then send **authorize commands** to client.
 
 **Client**
 
 * Calculate `Skey` for received server public keys.
 * Verify signature. If signature is not valid, close session with `SERVER_INVALID_SIGNATURE` code.
+* Setup Client-Server TLS.
 
 ### Client-Server TLS
 
@@ -151,9 +153,9 @@ DSApub.Verify(payload, Spayload)
 
 ## Authorization
 
-**Client**
+**Originator**
 
-* To initiate authorization send **authorize command** with recipient `email` address:
+* To initiate authorization send **authorize command** with recipient `email`:
 
 ```javascript
 {
@@ -175,15 +177,21 @@ DSApub.Verify(payload, Spayload)
 }
 ```
 
-**Client**
+**Recipient**
 
-* Receive **authorize command** with originator `email` address and keys.
-* To accept authorization send **authorize command** with originator `email`.
+* To accept authorization send **authorize command** with originator `email`:
+
+```javascript
+{
+  command: 'authorize',
+  email: '{email}'
+}
+```
 
 **Server**
 
-* Send **authorize command** with receiver `email` and keys to originator.
-* Add originator and receiver to authorization table.
+* Send **authorize command** with recipient `email` and keys to originator.
+* Add originator and recipient to authorization table.
 
 ### Client-Client TLS
 
@@ -204,10 +212,10 @@ K = SHA-256(D || DHpub.origin || DHpub.recipient)
 * Derive initialization vector `IV` using own private `DSApriv` key and remote public `DSApub` key:
 
 ```
-IV = truncate(DSApriv.own x DSApub.remote)
+IV = truncate(DSApriv.own x DSApub.remote, 0 , 16)
 ```
 
-* Create separate `AES` cipher engines in `CBC` mode with `PKCS7` padding for `encrypt` end `decrypt` messages using shared secret `K` and initialization vector `IV`.
+* Create separate `AES` cipher engines in `CTR` mode for `encrypt` end `decrypt` messages using shared secret `K` and initialization vector `IV`.
 
 ## Prohibition
 

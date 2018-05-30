@@ -4,6 +4,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.websocket.CloseReason;
 
+import org.slf4j.LoggerFactory;
+
 import name.sukhoykin.cryptic.CloseCode;
 import name.sukhoykin.cryptic.ServiceHandler;
 import name.sukhoykin.cryptic.ServiceSession;
@@ -27,14 +29,35 @@ public class AuthenticateHandler extends ServiceHandler<AuthenticateMessage> {
 
         String email = session.getEmail();
 
-        session = getClients().put(email, session);
+        ServiceSession closeSession = getClients().put(email, session);
 
-        if (session != null) {
+        if (closeSession != null) {
             CloseCode closeCode = CloseCode.DUPLICATE_AUTHENTICATION;
-            session.close(new CloseReason(closeCode, closeCode.toString()));
+            closeSession.close(new CloseReason(closeCode, closeCode.toString()));
         }
 
         getAuthorizations().put(email, ConcurrentHashMap.newKeySet());
+        getAuthorizations().forEach((clientEmail, set) -> {
+
+            ServiceSession client;
+
+            if (set.contains(email) && (client = getClient(clientEmail)) != null) {
+
+                AuthorizeMessage authorize = new AuthorizeMessage();
+                authorize.setEmail(client.getEmail());
+                authorize.setDh(encodePublicKey(client.getClientDh()));
+                authorize.setDsa(encodePublicKey(client.getClientDsa()));
+
+                try {
+
+                    session.sendMessage(authorize);
+
+                } catch (CommandException e) {
+                    LoggerFactory.getLogger(AuthorizeHandler.class).warn(
+                            "Could not send authorize command to client {}: {}", client.getEmail(), e.getMessage());
+                }
+            }
+        });
 
         super.onMessage(session, message);
     }

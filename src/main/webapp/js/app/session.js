@@ -11,7 +11,7 @@ function ServiceSession(url) {
   var hashjs = Cryptic.hashjs;
   var aesjs = Cryptic.aesjs;
 
-  var curve = new Cryptic.elliptic.ec(Curve25519.curveName);
+  var curve = Cryptic.curve;
 
   var clientDh = curve.genKeyPair();
   var clientDsa = curve.genKeyPair();
@@ -85,12 +85,12 @@ function ServiceSession(url) {
       sha256.update(clientDh.getPublic().encode());
 
       var sharedSecret = sha256.digest();
-      var iv = aesjs.utils.hex.toBytes(TOTP);
+      var IV = aesjs.utils.hex.toBytes(TOTP);
 
       serverDsa = dsa;
 
-      aesEncrypt = new aesjs.ModeOfOperation.cbc(sharedSecret, iv);
-      aesDecrypt = new aesjs.ModeOfOperation.cbc(sharedSecret, iv);
+      aesEncrypt = new aesjs.ModeOfOperation.cbc(sharedSecret, IV);
+      aesDecrypt = new aesjs.ModeOfOperation.cbc(sharedSecret, IV);
 
       self.sendMessage = sendMessage;
       self.onAuthenticate();
@@ -242,6 +242,14 @@ function ServiceSession(url) {
       dsa : dsa,
       signature : signature
     });
+  }
+
+  self.getDh = function() {
+    return clientDh;
+  }
+
+  self.getDsa = function() {
+    return clientDsa;
   }
 
   self.sendMessage = function(message) {
