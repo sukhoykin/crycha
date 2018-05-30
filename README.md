@@ -17,7 +17,7 @@ grunt
 * [Authentication](#authentication)
 * [Authorization](#authorization)
 * [Prohibition](#prohibition)
-* [Messaging](#messaging)
+* [Delivery](#delivery)
 * [Presence](#presence)
 
 Communication protocol include three security and functionality tiers. Each tier has own TLS-encryption and nested in previous:
