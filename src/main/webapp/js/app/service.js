@@ -83,9 +83,6 @@ function CrypticService(url) {
 
       break;
 
-    case 'deliver':
-      break;
-
     case 'close':
 
       var client = clients[message.email];
@@ -98,6 +95,19 @@ function CrypticService(url) {
       delete clients[message.email];
 
       self.onClose(client);
+
+      break;
+
+    case 'deliver':
+
+      var client = clients[message.email];
+
+      if (client === undefined) {
+        session.close(CrypticCloseCode.SERVER_INVALID_PROTOCOL, 'Client not authorized yet');
+        return;
+      }
+
+      client.onMessage(message);
 
       break;
 
@@ -144,15 +154,17 @@ function CrypticService(url) {
       client = new ClientSession(session, email);
       clients[email] = client;
 
-    } else if (!client.isAuthorized()) {
+    } else {
+
+      if (client.isAuthorized()) {
+        session.close(CrypticCloseCode.CLIENT_INVALID_PROTOCOL, 'Client already authorized');
+        return;
+      }
 
       if (!client.isOrigin()) {
         client.authorize();
         self.onAuthorize(client);
       }
-
-    } else {
-      return;
     }
 
     session.sendMessage({
@@ -162,10 +174,20 @@ function CrypticService(url) {
   }
 
   self.prohibit = function(email) {
+
+    var client = clients[email];
+
+    if (client === undefined || !client.isAuthorized()) {
+      session.close(CrypticCloseCode.CLIENT_INVALID_PROTOCOL, 'Client not authorized yet');
+      return;
+    }
+
     session.sendMessage({
       command : 'prohibit',
       email : email
     });
+
+    delete clients[email];
   }
 
   self.close = function() {
@@ -234,7 +256,9 @@ CrypticCloseCode.CLIENT_ERROR = 4400;
 CrypticCloseCode.CLIENT_INVALID_COMMAND = 4401;
 CrypticCloseCode.CLIENT_INVALID_SIGNATURE = 4402;
 CrypticCloseCode.CLIENT_INVALID_KEY = 4403;
+CrypticCloseCode.CLIENT_INVALID_PROTOCOL = 4404;
 CrypticCloseCode.SERVER_ERROR = 4500;
 CrypticCloseCode.SERVER_INVALID_COMMAND = 4501;
 CrypticCloseCode.SERVER_INVALID_SIGNATURE = 4502;
 CrypticCloseCode.SERVER_INVALID_KEY = 4503;
+CrypticCloseCode.SERVER_INVALID_PROTOCOL = 4504;

@@ -260,7 +260,7 @@ function ServiceSession(url) {
 
   self.close = function(closeCode, closeReason) {
 
-    if (closeCode == undefined) {
+    if (closeCode === undefined) {
       socket.onclose = function() {
       }
       socket.close();

@@ -243,7 +243,7 @@ IV = truncate(DSApriv.own x DSApub.remote, 0 , 16)
 
 * Remove originator and recipient from authorization table.
 
-## Messaging
+## Delivery
 
 **Client**
 
