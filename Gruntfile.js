@@ -11,8 +11,8 @@ module.exports = function(grunt) {
         },
         options : {
           require : [ 'elliptic', 'hash.js' ],
-          alias: {
-            aesjs: './bower_components/aes-js/index.js'
+          alias : {
+            aesjs : './bower_components/aes-js/index.js'
           }
         }
       }

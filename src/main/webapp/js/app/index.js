@@ -4,7 +4,7 @@ var service = new CrypticService();
 
 service.onOpen = function() {
   console.log('Connected to %s', service.getUrl());
-  service.identify(getParameterByName('id') + '@example.com');
+  //service.identify(getParameterByName('id') + '@example.com');
 }
 
 service.onAuthenticate = function() {
