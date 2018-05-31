@@ -15,9 +15,13 @@ h1 {
 	padding: 0;
 }
 
-content {
+div, section, footer, svg {
+	border: 0px solid blue;
+}
+
+.container {
 	display: block;
-    max-width: 1200px;
+    max-width: 900px;
     height: 100%;
     padding: 0;
     margin: 0 auto;
@@ -26,10 +30,6 @@ content {
 form {
     width: 100%;
 	height: 100%;
-    display: -webkit-box;
-    display: -moz-box;
-    display: -ms-flexbox;
-    display: -webkit-flex;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -48,24 +48,59 @@ form input {
 	padding: 10px;
 }
 
-form email {
+form .email {
 	font-size: 1.4em;
 	margin-bottom: 20px;
 }
 
-messaging {
+#messaging {
     width: 100%;
     min-height: 100%;
-    display: -webkit-box;
-    display: -moz-box;
-    display: -ms-flexbox;
-    display: -webkit-flex;
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
 }
 
-message {
-	max-width: 480px;
-	margin: 10px;
+#messaging .content {
+	width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+}
+
+#messaging footer {
+	height: 100px;
+}
+
+.message {
+	display: flex;
+	align-items: flex-end;
+}
+
+.message .icon {
+    width: 80px;
+    height: 80px;
+}
+
+.message .baloon {
+    display: flex;
+    flex-direction: column;
+}
+
+.message .email {
+    font-size: 1.4em;
+    width: 300px;
+    word-wrap: break-word;
+}
+
+.message .text {
+    max-width: 560px;
+    border: 1px solid #708cfd;
+    border-radius: 15px;
+    padding: 10px;
+}
+
+.message .text.self {
+	color: #ffffff;
+    background-color: #708cfd;
 }
