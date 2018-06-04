@@ -16,13 +16,13 @@ h1 {
 }
 
 div, section, footer, svg {
-	border: 0px solid blue;
+	border: 0px solid lightsalmon;
 }
 
 .container {
 	display: block;
     max-width: 900px;
-    height: 100%;
+    min-height: 100%;
     padding: 0;
     margin: 0 auto;
 }
@@ -59,6 +59,8 @@ form .email {
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
+
+    background-color: aliceblue;
 }
 
 #messaging .content {
@@ -66,41 +68,61 @@ form .email {
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
+
+    background-color: antiquewhite;
 }
 
 #messaging footer {
-	height: 100px;
+    height: 100px;
+    background-color: aqua;
 }
 
-.message {
-	display: flex;
-	align-items: flex-end;
+#messaging footer textarea {
+	max-width: 100%;
+    resize: none;
 }
 
-.message .icon {
+#messaging .icon {
     width: 80px;
     height: 80px;
 }
 
-.message .baloon {
+.message {
+    display: flex;
+	align-items: stretch;
+    margin-bottom: 10px;
+}
+
+.message .icon {
+    width: 5%;
+    /*height: 80px;*/
+    /*padding: 0px 10px;*/
+}
+
+.message .balloon {
     display: flex;
     flex-direction: column;
+    font-size: 0.9em;
+    width: 50%;
+    padding: 10px 15px;
+    border-radius: 15px;
+    background-color: gainsboro;
 }
 
 .message .email {
-    font-size: 1.4em;
-    width: 300px;
+    font-size: 1.1em;
+    font-weight: bold;
+    max-width: 260px;
     word-wrap: break-word;
 }
 
 .message .text {
-    max-width: 560px;
-    border: 1px solid #708cfd;
-    border-radius: 15px;
-    padding: 10px;
+    /*max-width: 560px;*/
+    /*background-color: ghostwhite;*/
+    /*border: 1px solid #708cfd;*/
 }
 
 .message .text.self {
-	color: #ffffff;
-    background-color: #708cfd;
+	/*color: #ffffff;
+    background-color: #708cfd;*/
 }
