@@ -112,6 +112,7 @@ footer textarea {
 
 .side {
     width: 90px;
+    height: 90px;
 }
 
 .side svg {
@@ -132,7 +133,7 @@ footer textarea {
     align-items: flex-end;
 }
 
-.message.self .center {
+.self .center {
     flex-direction: row;
 }
 
@@ -140,11 +141,15 @@ footer textarea {
     font-size: 0.9em;
     max-width: 70%;
     padding: 10px 15px;
+    margin-bottom: 7px;
     border-radius: 15px;
     background-color: #f5f9fa;
 }
 
-
+.self .balloon {
+    color: white;
+    background-color: #62697d;
+}
 
 .balloon .header {
     display: flex;
@@ -156,4 +161,8 @@ footer textarea {
     font-weight: bold;
     padding-right: 10px;
     word-break: break-all;
+}
+
+.self .balloon .email {
+    color: white;
 }
