@@ -1,5 +1,8 @@
 'use strict';
 
+// TODO: whisper
+// TODO: auto authorization after incoming close
+
 var service = new CrypticService();
 
 service.onOpen = function() {

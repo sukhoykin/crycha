@@ -1,4 +1,5 @@
-html, body {
+html,
+body {
     height: 100%;
     font-family: 'Open Sans', sans-serif;
 }
@@ -8,19 +9,22 @@ body {
 }
 
 h1 {
-	font-size: 4em;
-	font-weight: 300;
-	line-height: 1;
-	margin: 0;
-	padding: 0;
+    font-size: 4em;
+    font-weight: 300;
+    line-height: 1;
+    margin: 0;
+    padding: 0;
 }
 
-div, section, footer, svg {
-	border: 0px solid lightsalmon;
+div,
+section,
+footer,
+svg {
+    border: 0px solid lightsalmon;
 }
 
 .container {
-	display: block;
+    display: block;
     max-width: 900px;
     height: 100%;
     padding: 0;
@@ -29,7 +33,7 @@ div, section, footer, svg {
 
 form {
     width: 100%;
-	height: 100%;
+    height: 100%;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -37,20 +41,20 @@ form {
 }
 
 form svg {
-	width: 200px;
-	height: 200px;
-	margin: 20px;
+    width: 200px;
+    height: 200px;
+    margin: 20px;
 }
 
 form input {
-	width: 360px;
-	font-size: 1.6em;
-	padding: 10px;
+    width: 360px;
+    font-size: 1.6em;
+    padding: 10px;
 }
 
 form .email {
-	font-size: 1.4em;
-	margin-bottom: 20px;
+    font-size: 1.4em;
+    margin-bottom: 20px;
 }
 
 #messaging {
@@ -72,7 +76,7 @@ header {
 }
 
 header .container {
-	display: block;
+    display: block;
     max-width: 900px;
     height: 100%;
     padding: 0;
@@ -80,7 +84,7 @@ header .container {
 }
 
 .content {
-	width: 100%;
+    width: 100%;
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
@@ -97,7 +101,7 @@ footer {
 }
 
 footer textarea {
-	max-width: 100%;
+    max-width: 100%;
     resize: none;
 }
 
@@ -112,7 +116,6 @@ footer textarea {
 
 .side {
     width: 90px;
-    height: 90px;
 }
 
 .side svg {
@@ -137,18 +140,28 @@ footer textarea {
     flex-direction: row;
 }
 
+.info .center {
+    justify-content: center;
+}
+
 .balloon {
     font-size: 0.9em;
     max-width: 70%;
-    padding: 10px 15px;
+    padding: 8px 15px;
     margin-bottom: 7px;
-    border-radius: 15px;
+    border-radius: 14px;
     background-color: #f5f9fa;
 }
 
 .self .balloon {
     color: white;
     background-color: #62697d;
+}
+
+.info .balloon {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .balloon .header {
@@ -159,10 +172,46 @@ footer textarea {
 .balloon .email {
     color: crimson;
     font-weight: bold;
-    padding-right: 10px;
     word-break: break-all;
+}
+
+.balloon .title {
+    color: #505869;
+    font-weight: bold;
+}
+
+.balloon .time {
+    padding-left: 10px;
+}
+
+.balloon .input {
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+}
+
+.balloon input[type=button] {
+    border: none;
+    padding: 5px 15px;
+    color: white;
+    background-color: #1fb869;
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+.balloon input.neg {
+    background-color: #dc1444;
 }
 
 .self .balloon .email {
     color: white;
+}
+
+.info .balloon .email {
+    margin-bottom: 10px;
+}
+
+.info .balloon .icon {
+    width: 160px;
+    height: 160px;
 }

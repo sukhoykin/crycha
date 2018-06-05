@@ -13,6 +13,8 @@ public class AuthorizeHandler extends ServiceHandler<AuthorizeMessage> {
 
         String sessionEmail = session.getEmail();
         String messageEmail = message.getEmail();
+        
+        //TODO: send email with authorization request if offline
 
         if (!sessionEmail.equals(messageEmail) && getAuthorization(sessionEmail).add(messageEmail)) {
 
