@@ -50,7 +50,7 @@ form .email {
     margin-bottom: 20px;
 }
 
-#messaging {
+#messenger {
     width: 100%;
     min-height: 100%;
     display: flex;
@@ -81,8 +81,8 @@ header a {
 
 header .authorize {
     margin-left: auto;
-    width: 40px;
-    padding: 5px;
+    width: 34px;
+    padding: 8px;
 }
 
 .content {
@@ -90,7 +90,7 @@ header .authorize {
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
-    padding: 50px 0px;
+    padding: 55px 0px 50px 0px;
 }
 
 footer {
@@ -99,12 +99,21 @@ footer {
     position: fixed;
     left: 0px;
     bottom: 0px;
-    background-color: #13263a;
+}
+
+footer .container {
+    display: flex;
+    max-width: 900px;
+    height: 100%;
+    margin: 0 auto;
 }
 
 footer textarea {
-    max-width: 100%;
+    flex-grow: 1;
     resize: none;
+    border: 1px solid #13263a;
+    font-family: 'Open Sans', sans-serif;
+    font-size: 0.8em;
 }
 
 .message {
