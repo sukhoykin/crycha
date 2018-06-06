@@ -16,13 +16,6 @@ h1 {
     padding: 0;
 }
 
-div,
-section,
-footer,
-svg {
-    border: 0px solid lightsalmon;
-}
-
 .container {
     display: block;
     max-width: 900px;
@@ -76,11 +69,20 @@ header {
 }
 
 header .container {
-    display: block;
+    display: flex;
     max-width: 900px;
     height: 100%;
-    padding: 0;
     margin: 0 auto;
+}
+
+header a {
+    width: 50px;
+}
+
+header .authorize {
+    margin-left: auto;
+    width: 40px;
+    padding: 5px;
 }
 
 .content {
@@ -162,6 +164,7 @@ footer textarea {
     display: flex;
     flex-direction: column;
     align-items: center;
+    background-color: #f5f5e5;
 }
 
 .balloon .header {
