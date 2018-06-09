@@ -9,6 +9,7 @@ body {
 }
 
 h1 {
+    color: #13263a;
     font-size: 4em;
     font-weight: 300;
     line-height: 1;
@@ -22,6 +23,10 @@ h1 {
     height: 100%;
     padding: 0;
     margin: 0 auto;
+}
+
+.hide {
+    display: none;
 }
 
 form {
@@ -40,8 +45,8 @@ form svg {
 }
 
 form input {
-    width: 360px;
-    font-size: 1.6em;
+    width: 270px;
+    font-size: 1.3em;
     padding: 10px;
 }
 
@@ -50,7 +55,11 @@ form .email {
     margin-bottom: 20px;
 }
 
-#messenger {
+form#authorize h1 {
+    font-size: 3em;
+}
+
+section .messenger {
     width: 100%;
     min-height: 100%;
     display: flex;
@@ -75,14 +84,23 @@ header .container {
     margin: 0 auto;
 }
 
-header a {
+header .button {
+    display: flex;
     width: 50px;
+    height: 50px;
+    cursor: pointer;
 }
 
-header .authorize {
+header .button svg {
+    width: 100%;
+}
+
+header .button.right {
     margin-left: auto;
-    width: 34px;
-    padding: 8px;
+}
+
+header .button.selected {
+    background-color: white;
 }
 
 .content {

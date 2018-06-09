@@ -16,7 +16,32 @@
 
 <body>
 	<div class="container">
-		<form id="identify" style="display: none">
+		<header>
+			<div class="container">
+				<div class="button">
+					<svg data-jdenticon-value="bob@example.com"></svg>
+				</div>
+				<div class="button">
+					<svg data-jdenticon-value="bo2b@example.com"></svg>
+				</div>
+				<div class="button">
+					<svg data-jdenticon-value="b3o2b@example.com"></svg>
+				</div>
+				<div class="button">
+					<svg data-jdenticon-value="4bo2b@example.com"></svg>
+				</div>
+				<div class="button">
+					<svg data-jdenticon-value="bo42b@example.com"></svg>
+				</div>
+				<div class="button right selected">
+					<svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">
+						<rect height="70" width="25" y="15.421" x="37.5" fill="#62697d" />
+						<rect height="25" width="70" y="37.5" x="15" fill="#62697d" />
+					</svg>
+				</div>
+			</div>
+		</header>
+		<form id="identify" class="hide">
 			<h1>Identify</h1>
 			<div>
 				<svg data-jdenticon-value="cryptic"></svg>
@@ -25,7 +50,7 @@
 				<input type="email" placeholder="Enter email">
 			</div>
 		</form>
-		<form id="authenticate" style="display: none">
+		<form id="authenticate" class="hide">
 			<h1>Authenticate</h1>
 			<div>
 				<svg data-jdenticon-value="cryptic"></svg>
@@ -36,7 +61,7 @@
 				<input type="password" placeholder="Enter password">
 			</div>
 		</form>
-		<form id="authorize" style="display: none">
+		<form id="authorize">
 			<h1>Authorize</h1>
 			<div>
 				<svg data-jdenticon-value="cryptic"></svg>
@@ -45,35 +70,7 @@
 				<input type="email" placeholder="Enter email">
 			</div>
 		</form>
-		<div id="messenger">
-			<header>
-				<div class="container">
-					<a href="">
-						<svg data-jdenticon-value="bob@example.com"></svg>
-					</a>
-					<a href="">
-						<svg data-jdenticon-value="bob1@example.com"></svg>
-					</a>
-					<a href="">
-						<svg data-jdenticon-value="bob2@example.com"></svg>
-					</a>
-					<a href="">
-						<svg data-jdenticon-value="bob3@example.com"></svg>
-					</a>
-					<a href="">
-						<svg data-jdenticon-value="bo2b2@example.com"></svg>
-					</a>
-					<a href="">
-						<svg data-jdenticon-value="bo4b2@example.com"></svg>
-					</a>
-					<a class="authorize" href="">
-						<svg viewBox="0 0 55 55" preserveAspectRatio="xMidYMid meet">
-							<rect x="0" y="20" height="15" width="55" style="fill: #62697d" />
-							<rect x="20" y="0" height="55" width="15" style="fill: #62697d" />
-						</svg>
-					</a>
-				</div>
-			</header>
+		<section class="messenger hide">
 			<div class="content">
 				<div class="message">
 					<div class="side">
@@ -202,14 +199,14 @@
 					</div>
 				</div>
 			</div>
-			<footer>
-				<div class="container">
-					<div class="side"></div>
-					<textarea placeholder="Write"></textarea>
-					<div class="side"></div>
-				</div>
-			</footer>
-		</div>
+		</section>
+		<footer class="hide">
+			<div class="container">
+				<div class="side"></div>
+				<textarea placeholder="Write"></textarea>
+				<div class="side"></div>
+			</div>
+		</footer>
 	</div>
 </body>
 

@@ -12,6 +12,8 @@ import name.sukhoykin.cryptic.exception.ProtocolException;
 
 public class IdentifyHandler implements CommandHandler<IdentifyMessage> {
 
+    // TODO: solve email spam problem
+
     private static final Logger log = LoggerFactory.getLogger(IdentifyHandler.class);
 
     @Override
