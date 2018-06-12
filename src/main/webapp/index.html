@@ -17,7 +17,7 @@
 <body>
 	<div class="container">
 		<header>
-			<div class="container">
+			<div class="container" style="display: none">
 				<div class="button">
 					<svg data-jdenticon-value="bob@example.com"></svg>
 				</div>
@@ -33,15 +33,28 @@
 				<div class="button">
 					<svg data-jdenticon-value="bo42b@example.com"></svg>
 				</div>
-				<div class="button right selected">
+				
+				<div class="button right">
 					<svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">
-						<rect height="70" width="25" y="15.421" x="37.5" fill="#62697d" />
-						<rect height="25" width="70" y="37.5" x="15" fill="#62697d" />
+						<rect height="70" width="25" y="15" x="37" fill="#62697d" />
+						<rect height="25" width="70" y="37" x="15" fill="#62697d" />
+					</svg>
+				</div>
+			</div>
+			<div class="container">
+				<div class="button selected">
+					<svg data-jdenticon-value="vadim.sukhoykin@gmail.com"></svg>
+				</div>
+				<div class="email">vadim.sukhoykin@gmail.com</div>
+				<div class="button right">
+					<svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">
+						<rect height="70" width="25" y="15" x="37" fill="#62697d" transform="rotate(45, 50, 50)" />
+						<rect height="25" width="70" y="37" x="15" fill="#62697d" transform="rotate(45, 50, 50)" />
 					</svg>
 				</div>
 			</div>
 		</header>
-		<form id="identify" class="hide">
+		<form id="identify" style="display: none">
 			<h1>Identify</h1>
 			<div>
 				<svg data-jdenticon-value="cryptic"></svg>
@@ -50,7 +63,7 @@
 				<input type="email" placeholder="Enter email">
 			</div>
 		</form>
-		<form id="authenticate" class="hide">
+		<form id="authenticate" style="display: none">
 			<h1>Authenticate</h1>
 			<div>
 				<svg data-jdenticon-value="cryptic"></svg>
@@ -61,7 +74,7 @@
 				<input type="password" placeholder="Enter password">
 			</div>
 		</form>
-		<form id="authorize">
+		<form id="authorize" style="display: none">
 			<h1>Authorize</h1>
 			<div>
 				<svg data-jdenticon-value="cryptic"></svg>
@@ -70,7 +83,7 @@
 				<input type="email" placeholder="Enter email">
 			</div>
 		</form>
-		<section class="messenger hide">
+		<section class="messenger">
 			<div class="content">
 				<div class="message">
 					<div class="side">
@@ -200,7 +213,7 @@
 				</div>
 			</div>
 		</section>
-		<footer class="hide">
+		<footer>
 			<div class="container">
 				<div class="side"></div>
 				<textarea placeholder="Write"></textarea>
